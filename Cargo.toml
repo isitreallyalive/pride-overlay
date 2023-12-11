@@ -1,15 +1,16 @@
 [package]
 name = "pride-overlay"
 description = "A crate to overlay pride flags on images."
-version = "1.2.0"
+version = "1.2.1"
 edition = "2021"
 exclude = [
-	"*.png"
+	"*.png",
+	"*.jpg"
 ]
 license-file = "license.md"
 keywords = ["pride", "overlay", "image", "tool"]
 categories = ["graphics", "multimedia::images"]
-repository = "https://github.com/newtykins/pride-overlay"
+repository = "https://codeberg.org/newt/pride-overlay"
 readme = "readme.md"
 
 [dependencies]
