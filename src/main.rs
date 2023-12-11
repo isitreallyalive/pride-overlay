@@ -1,8 +1,8 @@
-use pride_overlay::{overlay, Flag, Opacity};
+use pride_overlay::{overlay, Flags, Opacity};
 
 fn main() {
     let mut img = image::open("input.jpg").unwrap();
-    overlay(&mut img, Flag::Pansexual, Opacity::from_percentage(25.))
+    overlay(&mut img, Flags::Rainbow, Opacity::from_percentage(60.))
         .save("out.png")
         .unwrap();
 }
