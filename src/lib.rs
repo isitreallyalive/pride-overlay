@@ -1,7 +1,10 @@
 use image::{imageops, DynamicImage, ImageBuffer, Rgba};
+use imageproc::{drawing::{draw_filled_circle, draw_filled_rect}, rect::Rect};
 use std::ops::Div;
 
-// Opacity helper
+type Image = ImageBuffer<Rgba<u8>, Vec<u8>>;
+
+/// The opacity of a pixel (0-255)
 #[derive(Debug)]
 pub struct Opacity(u8);
 
@@ -19,6 +22,7 @@ impl Opacity {
     }
 }
 
+/// The colours associated with a pride flag
 pub(crate) type Flag<const N: usize> = [(u8, u8, u8); N];
 
 /// Built-in flags
@@ -84,15 +88,17 @@ pub mod Flags {
     pub const Polyamory: Flag<3> = [(0, 0, 255), (255, 0, 0), (0, 0, 0)];
 }
 
-pub fn overlay<const N: usize>(
+fn draw<const N: usize>(
     image: &mut DynamicImage,
     flag: Flag<N>,
     opacity: Option<Opacity>,
-) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
+    flag_transform: Option<Box<dyn Fn(Image, u32, u32) -> Image>>,
+) -> Image {
+    // get image data
     let mut image = image.to_rgba8();
     let (width, height) = image.dimensions();
 
-    // Draw the flag as an image
+    // draw the pride flag
     let mut flag_image = ImageBuffer::<Rgba<u8>, Vec<u8>>::new(width, height);
     let segment_count = flag.len();
     let segment_size = (height as f32).div(segment_count as f32).ceil() as u32;
@@ -100,16 +106,62 @@ pub fn overlay<const N: usize>(
 
     for (i, (r, g, b)) in flag.iter().enumerate() {
         let i = i as u32;
+        let rect = Rect::at(0, (i * segment_size) as i32).of_size(width, segment_size);
+        let colour = Rgba([*r, *g, *b, a]);
 
-        for y in 0..segment_size {
-            for x in 0..width {
-                flag_image.put_pixel(x, (i * segment_size) + y, Rgba([*r, *g, *b, a]));
-            }
-        }
+        flag_image = draw_filled_rect(&flag_image, rect, colour);
     }
 
-    // Blit the flag over the image
+    // transform the flag if a transform closure has been provided
+    if let Some(transform) = flag_transform {
+        flag_image = transform(flag_image, width, height);
+    }
+
+    // overlay the flag image
     imageops::overlay(&mut image, &flag_image, 0, 0);
 
     image.clone()
+}
+
+/// Overlay a pride flag over an image
+pub fn overlay<const N: usize>(
+    image: &mut DynamicImage,
+    flag: Flag<N>,
+    opacity: Option<Opacity>,
+) -> Image {
+    draw(
+        image,
+        flag,
+        opacity,
+        None::<Box<dyn Fn(Image, u32, u32) -> Image>>,
+    )
+}
+
+/// Overlay a pride flag ring over an image
+pub fn circle<const N: usize>(image: &mut DynamicImage, flag: Flag<N>, thickness: Option<u8>) -> Image {
+    let radius_pad: u8;
+
+    if let Some(mut thickness) = thickness {
+        if thickness > 10 {
+            thickness = 10;
+        }
+
+        radius_pad = thickness * 8;
+    } else {
+        radius_pad = 24;
+    }
+
+    draw(
+        image,
+        flag,
+        Some(Opacity(255)),
+        Some(Box::new(move |img, width, height| {
+            draw_filled_circle(
+                &img,
+                ((width / 2) as i32, (height / 2) as i32),
+                (width / 2 - radius_pad as u32) as i32,
+                Rgba([0, 0, 0, 0]),
+            )
+        })),
+    )
 }
