@@ -12,12 +12,15 @@ use std::ops::Div;
 
 type Image = ImageBuffer<Rgba<u8>, Vec<u8>>;
 
-fn draw(
-    image: &mut DynamicImage,
+fn draw<T>(
+    image: &DynamicImage,
     flag: &[(u8, u8, u8)],
     opacity: Option<Opacity>,
-    flag_transform: Option<Box<dyn Fn(Image, u32, u32) -> Image>>,
-) -> Image {
+    flag_transform: Option<Box<T>>,
+) -> Image
+where
+    T: Sized + Fn(Image, u32, u32) -> Image,
+{
     // get image data
     let mut image = image.to_rgba8();
     let (width, height) = image.dimensions();
@@ -48,20 +51,21 @@ fn draw(
 }
 
 /// Overlay a pride flag over an image
-pub fn overlay(image: &mut DynamicImage, flag: &[(u8, u8, u8)], opacity: Option<Opacity>) -> Image {
-    draw(
-        image,
-        flag,
-        opacity,
-        None::<Box<dyn Fn(Image, u32, u32) -> Image>>,
-    )
+pub fn overlay<T>(image: &DynamicImage, flag: T, opacity: Option<Opacity>) -> Image
+where
+    T: Into<Vec<(u8, u8, u8)>>,
+{
+    draw::<fn(Image, u32, u32) -> Image>(image, &flag.into(), opacity, None)
 }
 
 /// Overlay a pride flag ring over an image
-pub fn circle(image: &mut DynamicImage, flag: &[(u8, u8, u8)], thickness: Option<u8>) -> Image {
+pub fn circle<T>(image: &DynamicImage, flag: T, thickness: Option<u8>) -> Image
+where
+    T: Into<Vec<(u8, u8, u8)>>,
+{
     draw(
         image,
-        flag,
+        &flag.into(),
         Some(Opacity(255)),
         Some(Box::new(move |img, width, height| {
             draw_filled_circle(

@@ -7,7 +7,7 @@ impl Opacity {
     }
 
     pub fn from_percentage(percentage: f32) -> Option<Opacity> {
-        if percentage >= 0. && percentage <= 100. {
+        if (0. ..=100.).contains(&percentage) {
             return Some(Opacity((2.55 * percentage).floor() as u8));
         }
 
