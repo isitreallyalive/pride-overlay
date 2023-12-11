@@ -1,7 +1,7 @@
-use strum_macros::{Display, EnumString};
+use strum_macros::{Display, EnumString, EnumIter};
 
 /// Built-in flags
-#[derive(Display, EnumString)]
+#[derive(Display, EnumString, EnumIter)]
 pub enum Flags {
     Rainbow,
     Transgender,
