@@ -1,12 +1,13 @@
-pub mod flags;
-pub mod opacity;
+mod flags;
+mod opacity;
 
+pub use flags::Flags;
 use image::{imageops, DynamicImage, ImageBuffer, Rgba};
 use imageproc::{
     drawing::{draw_filled_circle, draw_filled_rect},
     rect::Rect,
 };
-use opacity::Opacity;
+pub use opacity::Opacity;
 use std::ops::Div;
 
 type Image = ImageBuffer<Rgba<u8>, Vec<u8>>;
