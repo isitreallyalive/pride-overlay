@@ -1,5 +1,8 @@
 use image::{imageops, DynamicImage, ImageBuffer, Rgba};
-use imageproc::{drawing::{draw_filled_circle, draw_filled_rect}, rect::Rect};
+use imageproc::{
+    drawing::{draw_filled_circle, draw_filled_rect},
+    rect::Rect,
+};
 use std::ops::Div;
 
 type Image = ImageBuffer<Rgba<u8>, Vec<u8>>;
@@ -138,19 +141,11 @@ pub fn overlay<const N: usize>(
 }
 
 /// Overlay a pride flag ring over an image
-pub fn circle<const N: usize>(image: &mut DynamicImage, flag: Flag<N>, thickness: Option<u8>) -> Image {
-    let radius_pad: u8;
-
-    if let Some(mut thickness) = thickness {
-        if thickness > 10 {
-            thickness = 10;
-        }
-
-        radius_pad = thickness * 8;
-    } else {
-        radius_pad = 24;
-    }
-
+pub fn circle<const N: usize>(
+    image: &mut DynamicImage,
+    flag: Flag<N>,
+    thickness: Option<u8>,
+) -> Image {
     draw(
         image,
         flag,
@@ -159,7 +154,16 @@ pub fn circle<const N: usize>(image: &mut DynamicImage, flag: Flag<N>, thickness
             draw_filled_circle(
                 &img,
                 ((width / 2) as i32, (height / 2) as i32),
-                (width / 2 - radius_pad as u32) as i32,
+                (width / 2
+                    - if let Some(mut thickness) = thickness {
+                        if thickness > 10 {
+                            thickness = 10;
+                        }
+
+                        thickness * 8
+                    } else {
+                        24
+                    } as u32) as i32,
                 Rgba([0, 0, 0, 0]),
             )
         })),
