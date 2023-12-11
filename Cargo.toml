@@ -1,9 +1,16 @@
 [package]
 name = "pride-overlay"
+description = "A crate to overlay pride flags on images."
 version = "1.0.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+exclude = [
+	"*.png"
+]
+license-file = "license.md"
+keywords = ["pride", "overlay", "image", "tool"]
+categories = ["graphics", "multimedia::images"]
+repository = "https://github.com/newtykins/pride-overlay"
+readme = "readme.md"
 
 [dependencies]
 image = "0.24.5"
