@@ -1,6 +1,37 @@
 [package]
 name = "pride-overlay"
-version = "0.1.0"
+version = "2.0.0"
+publish = false
+description = "Overlay pride flags on images"
+authors = ["newt <hi@newty.dev>"]
 edition = "2024"
 
+exclude = [
+    "examples"
+]
+
+[features]
+default = ["default-formats", "rayon"]
+rayon = ["image/rayon", "imageproc/rayon"]
+default-formats = ["avif", "bmp", "dds", "exr", "ff", "gif", "hdr", "ico", "jpeg", "png", "pnm", "qoi", "tga", "tiff", "webp"]
+
+# formats
+avif = ["image/avif"]
+bmp = ["image/bmp"]
+dds = ["image/dds"]
+exr = ["image/exr"]
+ff = ["image/ff"]
+gif = ["image/gif"]
+hdr = ["image/hdr"]
+ico = ["image/ico"]
+jpeg = ["image/jpeg"]
+png = ["image/png"]
+pnm = ["image/pnm"]
+qoi = ["image/qoi"]
+tga = ["image/tga"]
+tiff = ["image/tiff"]
+webp = ["image/webp"]
+
 [dependencies]
+image = { version = "0.25.6", default-features = false }
+imageproc = { version = "0.25.0", default-features = false }
