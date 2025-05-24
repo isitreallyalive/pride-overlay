@@ -5,7 +5,7 @@ macro_rules! generate_flags {
             $(
                 $name,
             )+
-            Custom(Vec<$crate::Colour>),
+            Custom(&'static [$crate::Colour]),
         }
 
         $(
@@ -14,6 +14,14 @@ macro_rules! generate_flags {
         )+
 
         impl Flag {
+            /// The name of the flag.
+            pub const fn name(&self) -> &str {
+                match self {
+                    $(Flag::$name => stringify!($name),)+
+                    Flag::Custom(_) => "Custom",
+                }
+            }
+
             /// The colours of the flag.
             pub fn colours(&self) -> &[$crate::Colour] {
                 match self {
@@ -23,18 +31,10 @@ macro_rules! generate_flags {
             }
         }
 
-        impl std::fmt::Display for Flag {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                // name
-                match self {
-                    $(Flag::$name => write!(f, "{}", stringify!($name)),)+
-                    Flag::Custom(_) => write!(f, "Custom"),
-                }?;
+        impl core::fmt::Display for Flag {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                write!(f, "{}: [", self.name())?;
 
-                // start colours
-                write!(f, ": [")?;
-
-                // colours
                 for (i, colour) in self.colours().iter().enumerate() {
                     if i > 0 {
                         write!(f, ", ")?;
@@ -42,15 +42,14 @@ macro_rules! generate_flags {
                     write!(f, "{}", colour)?;
                 }
 
-                // end colours
                 write!(f, "]")
             }
         }
 
-        impl std::fmt::Debug for Flag {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        impl core::fmt::Debug for Flag {
+            fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                 // pass through to Display
-                write!(f, "{}", self)
+                write!(f, "{self}")
             }
         }
     };

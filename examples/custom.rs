@@ -7,5 +7,5 @@ const CUSTOM: &[Colour] = &[
 ];
 
 fn main() {
-    println!("{:?}", Flag::Custom(CUSTOM.to_vec()));
+    println!("{:?}", Flag::Custom(CUSTOM));
 }

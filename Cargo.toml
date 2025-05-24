@@ -35,3 +35,4 @@ webp = ["image/webp"]
 [dependencies]
 image = { version = "0.25.6", default-features = false }
 imageproc = { version = "0.25.0", default-features = false }
+strum-lite = "0.1.1"

@@ -1,4 +1,4 @@
-use std::fmt;
+use core::fmt;
 
 /// Represents a colour in RGB format.
 #[derive(Clone, Copy)]
@@ -18,5 +18,12 @@ impl Colour {
 impl fmt::Display for Colour {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {}, {})", self.r, self.g, self.b)
+    }
+}
+
+impl fmt::Debug for Colour {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // pass through to Display
+        write!(f, "{self}")
     }
 }
