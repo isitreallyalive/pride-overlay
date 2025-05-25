@@ -34,7 +34,7 @@ impl Effect for Ring {
 /// Extracts the flag colours from the given [FlagData].
 fn extract_flag_colours(flag_data: FlagData) -> &'static [Colour] {
     match flag_data {
-        FlagData::Special(_, colours) | FlagData::Colours(colours) => colours,
+        FlagData::Svg(_, colours) | FlagData::Colours(colours) => colours,
     }
 }
 

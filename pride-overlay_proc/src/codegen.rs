@@ -8,7 +8,7 @@ pub fn generate_flag_variants(flags: &[Flag]) -> impl Iterator<Item = TokenStrea
         let name = &flag.name;
         let lower_name = name.to_string().to_lowercase();
         let path = match flag.definition {
-            FlagDefinition::Special(_, _) => "",
+            FlagDefinition::Svg(_, _) => "",
             _ => "/readme"
         };
         let doc = format!(r#" <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags{path}/{lower_name}.svg" alt="{lower_name} flag" height="125px">"#);
@@ -26,8 +26,8 @@ pub fn generate_flag_constants(flags: &[Flag]) -> impl Iterator<Item = TokenStre
         let colour_const = create_colour_const_name(name);
 
         match &flag.definition {
-            FlagDefinition::Special(path, colours) => {
-                generate_special_flag_constants(name, path, colours, &colour_const)
+            FlagDefinition::Svg(path, colours) => {
+                generate_svg_flag_constants(name, path, colours, &colour_const)
             }
             FlagDefinition::Colors(colours) => {
                 generate_color_flag_constants(colours, &colour_const)
@@ -36,8 +36,8 @@ pub fn generate_flag_constants(flags: &[Flag]) -> impl Iterator<Item = TokenStre
     })
 }
 
-/// Generates constants for special flags (with embedded image data).
-pub fn generate_special_flag_constants(
+/// Generates constants for Svg flags (with embedded image data).
+pub fn generate_svg_flag_constants(
     name: &syn::Ident,
     path: &str,
     colours: &[Colour],
@@ -91,10 +91,10 @@ pub fn generate_flag_data_matches(flags: &[Flag]) -> impl Iterator<Item = TokenS
         let colour_const = create_colour_const_name(name);
 
         match &flag.definition {
-            FlagDefinition::Special(_, _) => {
+            FlagDefinition::Svg(_, _) => {
                 let data_const = create_data_const_name(name);
                 quote! {
-                    Flag::#name => FlagData::Special(#data_const, #colour_const)
+                    Flag::#name => FlagData::Svg(#data_const, #colour_const)
                 }
             }
             FlagDefinition::Colors(_) => {

@@ -2,7 +2,7 @@ use crate::Colour;
 
 pub enum FlagData {
     Colours(&'static [Colour]),
-    Special(&'static [u8], &'static [Colour]),
+    Svg(&'static [u8], &'static [Colour]),
 }
 
 proc::generate_flags! {

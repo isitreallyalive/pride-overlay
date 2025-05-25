@@ -38,7 +38,7 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
                 match self {
                     #(#flag_data_matches),*,
                     Flag::Custom { colours, svg } => if let Some(svg) = svg {
-                        FlagData::Special(svg, colours)
+                        FlagData::Svg(svg, colours)
                     } else {
                         FlagData::Colours(colours)
                     },
@@ -49,7 +49,7 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
             pub const fn name(&self) -> &'static str {
                 match self {
                     #(#flag_name_matches),*,
-                    Flag::Custom { .. } => "Custom",
+                    Flag::Custom { ..} => "Custom",
                 }
             }
 

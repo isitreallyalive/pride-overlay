@@ -15,7 +15,7 @@ pub struct Flag {
 
 pub enum FlagDefinition {
     Colors(Vec<Colour>),
-    Special(String, Vec<Colour>),
+    Svg(String, Vec<Colour>),
 }
 
 pub struct Colour {
@@ -66,7 +66,7 @@ impl Parse for Definitions {
                 let path: LitStr = input.parse()?;
                 let colours: Punctuated<Colour, Token![,]> =
                     Punctuated::parse_separated_nonempty(input)?;
-                FlagDefinition::Special(path.value(), colours.into_iter().collect())
+                FlagDefinition::Svg(path.value(), colours.into_iter().collect())
             } else {
                 let colours: Punctuated<Colour, Token![,]> =
                     Punctuated::parse_separated_nonempty(input)?;

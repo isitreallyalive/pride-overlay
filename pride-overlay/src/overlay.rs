@@ -35,12 +35,12 @@ pub(crate) fn create_flag_overlay(
     let alpha = opacity.get_raw();
 
     match flag.data() {
-        FlagData::Special(data, _) => create_special_flag_overlay(data, width, height, alpha),
+        FlagData::Svg(data, _) => create_svg_flag_overlay(data, width, height, alpha),
         FlagData::Colours(colours) => create_stripe_flag_overlay(colours, width, height, alpha),
     }
 }
 
-fn create_special_flag_overlay(data: &[u8], width: u32, height: u32, alpha: u8) -> RgbaImage {
+fn create_svg_flag_overlay(data: &[u8], width: u32, height: u32, alpha: u8) -> RgbaImage {
     let tree = Tree::from_data(data, &usvg::Options::default()).unwrap();
     let mut pixmap = Pixmap::new(width, height).unwrap();
 
