@@ -1,5 +1,5 @@
-use crate::flags::{FlagData, Svg};
-use crate::{Colour, Effect, Flag, Opacity, ScaleMode};
+use crate::flags::Svg;
+use crate::{Colour, Effect, Opacity, PrideFlag, ScaleMode};
 use image::GenericImageView;
 use image::{ImageBuffer, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_filled_rect_mut, rect::Rect};
@@ -11,52 +11,46 @@ use resvg::{
 /// Overlay the given flag on an image.
 #[derive(Builder)]
 #[builder(const)]
-pub struct Overlay {
+pub struct Overlay<'a> {
     #[builder(start_fn)]
-    flag: Flag,
+    flag: PrideFlag<'a>,
     #[builder(default = Opacity::HALF)]
     opacity: Opacity,
 }
 
-impl Effect for Overlay {
+impl<'a> Effect for Overlay<'a> {
     fn apply(&self, image: &mut image::DynamicImage) {
         let (width, height) = image.dimensions();
-        let flag_overlay = create_flag_overlay(self.flag, width, height, self.opacity);
+        let flag_overlay = create_flag_overlay(&self.flag, width, height, &self.opacity);
         overlay(image, &flag_overlay, 0, 0);
     }
 }
 
 pub(crate) fn create_flag_overlay(
-    flag: Flag,
+    flag: &PrideFlag<'_>,
     width: u32,
     height: u32,
-    opacity: Opacity,
+    opacity: &Opacity,
 ) -> RgbaImage {
     let alpha = opacity.get_raw();
+    let data = flag.data();
 
-    match flag.data() {
-        FlagData::Svg(Svg { data, scale_mode }, _) => {
-            create_svg_flag_overlay(data, width, height, alpha, scale_mode)
-        }
-        FlagData::Colours(colours) => create_stripe_flag_overlay(colours, width, height, alpha),
+    if let Some(svg) = &data.svg {
+        create_svg_flag_overlay(svg, width, height, alpha)
+    } else {
+        create_stripe_flag_overlay(data.colours, width, height, alpha)
     }
 }
 
-fn create_svg_flag_overlay(
-    data: &[u8],
-    width: u32,
-    height: u32,
-    alpha: u8,
-    scale_mode: ScaleMode,
-) -> RgbaImage {
-    let tree = Tree::from_data(data, &usvg::Options::default()).unwrap();
+fn create_svg_flag_overlay(svg: &Svg, width: u32, height: u32, alpha: u8) -> RgbaImage {
+    let tree = Tree::from_data(svg.data, &usvg::Options::default()).unwrap();
     let mut pixmap = Pixmap::new(width, height).unwrap();
 
     let svg_size = tree.size();
     let scale_x = width as f32 / svg_size.width();
     let scale_y = height as f32 / svg_size.height();
 
-    let transform = match scale_mode {
+    let transform = match svg.scale {
         ScaleMode::Fill => {
             let scale = scale_x.max(scale_y);
             Transform::from_scale(scale, scale).post_translate(

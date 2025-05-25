@@ -31,7 +31,7 @@ pub mod prelude {
     pub use crate::{
         Effect,
         colour::Colour,
-        flags::{Flag, ScaleMode, Svg},
+        flags::{FlagData, PrideFlag, ScaleMode},
         opacity::Opacity,
         overlay::Overlay,
         ring::Ring,

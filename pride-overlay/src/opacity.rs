@@ -1,7 +1,4 @@
-use core::fmt;
-
 /// Represents an opacity value, ranging from 0% (fully transparent) to 100% (fully opaque).
-#[derive(Clone, Copy)]
 pub struct Opacity(u8);
 
 impl Opacity {
@@ -37,18 +34,5 @@ impl Opacity {
     /// Returns the raw [u8] value of the [Opacity].
     pub const fn get_raw(&self) -> u8 {
         self.0
-    }
-}
-
-impl fmt::Display for Opacity {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}%", self.get())
-    }
-}
-
-impl fmt::Debug for Opacity {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // pass through to Display
-        write!(f, "{self}")
     }
 }

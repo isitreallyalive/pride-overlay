@@ -1,7 +1,5 @@
-use core::fmt;
-
 /// Represents a colour in RGB format with a proportion.
-#[derive(Builder, PartialEq, Eq)]
+#[derive(Builder, Clone, Copy)]
 #[builder(const)]
 pub struct Colour {
     #[builder(start_fn)]
@@ -23,18 +21,5 @@ impl Colour {
         let b = (hex & 0xFF) as u8;
 
         Colour::builder(r, g, b)
-    }
-}
-
-impl fmt::Display for Colour {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {}, {})", self.r, self.g, self.b)
-    }
-}
-
-impl fmt::Debug for Colour {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // pass through to Display
-        write!(f, "{self}")
     }
 }

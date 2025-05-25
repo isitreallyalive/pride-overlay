@@ -1,151 +1,130 @@
-use crate::parse::{Colour, Flag, FlagDefinition};
+use crate::parse::{Colour, Flag, Flags};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Ident;
 
-/// Generates the Flag enum variants from flag definitions.
-pub fn generate_flag_variants(flags: &[Flag]) -> impl Iterator<Item = TokenStream> + '_ {
-    flags.iter().map(|flag| {
-        let name = &flag.name;
-        let lower_name = name.to_string().to_lowercase();
-        let path = match flag.definition {
-            FlagDefinition::Svg { .. } => "",
-            _ => "/readme",
-        };
+/// Generates the code for the pride flag macro.
+pub fn generate(Flags(flags): Flags) -> TokenStream {
+    let consts = flags.iter().map(const_);
+    let doc_variants = flags.iter().map(|v| variant(v, true));
+    let variants: Vec<_> = flags.iter().map(|v| variant(v, false)).collect();
+    let data_arms = flags.iter().map(data_arm);
+
+    quote! {
+        #(#consts)*
+
+        /// A pride flag.
+        #[derive(Clone, Copy)]
+        pub enum PrideFlag<'a> {
+            #(#doc_variants),*,
+            Custom(FlagData<'a>)
+        }
+
+        impl<'a> PrideFlag<'a> {
+            /// Enumerates all built-in pride flags.
+            pub const fn all() -> &'static [PrideFlag<'a>] {
+                &[
+                    #(
+                        PrideFlag::#variants,
+                    )*
+                ]
+            }
+
+            /// Gets the human-readable name of a pride flag.
+            pub const fn name(&self) -> &'static str {
+                match self {
+                    #(
+                        PrideFlag::#variants => stringify!(#variants),
+                    )*
+                    PrideFlag::Custom(_) => "Custom"
+                }
+            }
+
+            /// Internal flag data.
+            pub(crate) const fn data(&self) -> &FlagData<'_> {
+                match self {
+                    #(#data_arms),*,
+                    PrideFlag::Custom(data) => &data,
+                }
+            }
+        }
+    }
+}
+
+/// Convert a [syn::Ident] to uppercase.
+fn upper_ident(ident: &Ident) -> Ident {
+    format_ident!("{}", ident.to_string().to_uppercase())
+}
+
+fn const_(
+    Flag {
+        name,
+        colours,
+        scale,
+    }: &Flag,
+) -> TokenStream {
+    let name = upper_ident(name);
+    let colours = colours.iter().map(|Colour { hex, proportion }| {
+        quote! {
+            crate::Colour::from_hex(#hex)
+                .proportion(#proportion)
+                .build()
+        }
+    });
+    let svg = scale
+        .as_ref()
+        .map(|scale| {
+            let file = format!("../../flags/{}.svg", name.to_string().to_lowercase());
+
+            quote! {
+                Some((include_bytes!(#file), ScaleMode::#scale))
+            }
+        })
+        .unwrap_or(quote! { None });
+
+    quote! {
+        const #name: FlagData<'static> = FlagData::builder(&[#(#colours),*])
+            .maybe_svg(#svg)
+            .build();
+    }
+}
+
+/// Convert a flag into a variant of the PrideFlag enum.
+fn variant(Flag { name, scale, .. }: &Flag, doc: bool) -> TokenStream {
+    if doc {
+        let str_name = name.to_string().to_lowercase();
+        let path = scale.as_ref().map(|_| "").unwrap_or("/readme");
         let doc = format!(
             r#" | Flag | [Overlay][crate::Overlay] | [Ring][crate::Ring] |
  |----|----|----|
  | {} | {} | {} |"#,
-        format!(r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags{path}/{lower_name}.svg" alt="{lower_name} flag" height="125px">"#),
-        format!(r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/out/overlay/{lower_name}.webp" alt="{lower_name} overlay" height="125px">"#),
-        format!(r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/out/ring/{lower_name}.webp" alt="{lower_name} ring" height="125px">"#),);
+            format!(
+                r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags{path}/{str_name}.svg" alt="{str_name} flag" height="125px">"#
+            ),
+            format!(
+                r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/out/overlay/{str_name}.webp" alt="{str_name} overlay" height="125px">"#
+            ),
+            format!(
+                r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/out/ring/{str_name}.webp" alt="{str_name} ring" height="125px">"#
+            ),
+        );
+
         quote! {
             #[doc = #doc]
             #name
         }
-    })
-}
-
-/// Generates constants for flag data and colors.
-pub fn generate_flag_constants(flags: &[Flag]) -> impl Iterator<Item = TokenStream> + '_ {
-    flags.iter().map(|flag| {
-        let name = &flag.name;
-        let colour_const = create_const_name(name, "COLOURS");
-
-        match &flag.definition {
-            FlagDefinition::Svg {
-                path,
-                scale_mode,
-                colours,
-            } => generate_svg_flag_constants(name, path, scale_mode, colours, &colour_const),
-            FlagDefinition::Colors(colours) => {
-                generate_color_flag_constants(colours, &colour_const)
-            }
+    } else {
+        quote! {
+            #name
         }
-    })
-}
-
-/// Generates constants for Svg flags (with embedded image data).
-pub fn generate_svg_flag_constants(
-    name: &syn::Ident,
-    path: &str,
-    scale_mode: &Ident,
-    colours: &[Colour],
-    colour_const: &syn::Ident,
-) -> TokenStream {
-    let file_path = format!("../../flags/{}", path);
-    let scale_const = create_const_name(name, "SCALE");
-    let data_const = create_const_name(name, "DATA");
-    let colour_tokens = generate_colour_tokens(colours);
-
-    quote! {
-        /// The scaling mode to use for the flag.
-        const #scale_const: ScaleMode = ScaleMode::#scale_mode;
-
-        /// Embedded image data for the flag.
-        const #data_const: &'static [u8] = include_bytes!(#file_path);
-
-        /// Color palette for the flag.
-        const #colour_const: &'static [crate::Colour] = &[
-            #(#colour_tokens),*
-        ];
     }
 }
 
-/// Generates constants for color-only flags.
-pub fn generate_color_flag_constants(colours: &[Colour], colour_const: &syn::Ident) -> TokenStream {
-    let colour_tokens = generate_colour_tokens(colours);
+/// Generate the match amrms for PrideFlag::data.
+fn data_arm(Flag { name, .. }: &Flag) -> TokenStream {
+    let const_ = upper_ident(name);
 
     quote! {
-        /// Color stripes for the flag.
-        const #colour_const: &'static [crate::Colour] = &[
-            #(#colour_tokens),*
-        ];
+        PrideFlag::#name => &#const_
     }
-}
-
-/// Converts color definitions to token streams.
-pub fn generate_colour_tokens(colours: &[Colour]) -> impl Iterator<Item = TokenStream> + '_ {
-    colours.iter().map(|c| {
-        let Colour {
-            r,
-            g,
-            b,
-            proportion,
-        } = c;
-
-        quote! { crate::Colour::builder(#r, #g, #b).proportion(#proportion).build() }
-    })
-}
-
-/// Generates match arms for flag data access.
-pub fn generate_flag_data_matches(flags: &[Flag]) -> impl Iterator<Item = TokenStream> + '_ {
-    flags.iter().map(|flag| {
-        let name = &flag.name;
-        let scale_const = create_const_name(name, "SCALE");
-        let colour_const = create_const_name(name, "COLOURS");
-
-        match &flag.definition {
-            FlagDefinition::Svg { .. } => {
-                let data_const = create_const_name(name, "DATA");
-                quote! {
-                    Flag::#name => FlagData::Svg(Svg {
-                        data: #data_const,
-                        scale_mode: #scale_const
-                    }, #colour_const)
-                }
-            }
-            FlagDefinition::Colors(_) => {
-                quote! {
-                    Flag::#name => FlagData::Colours(#colour_const)
-                }
-            }
-        }
-    })
-}
-
-/// Generates match arms for flag name access.
-pub fn generate_flag_name_matches(flags: &[Flag]) -> impl Iterator<Item = TokenStream> + '_ {
-    flags.iter().map(|flag| {
-        let name = &flag.name;
-        let name_str = name.to_string();
-        quote! {
-            Flag::#name => #name_str
-        }
-    })
-}
-
-/// Creates a constant name relating to a flag.
-pub fn create_const_name(flag: &syn::Ident, suffix: &str) -> syn::Ident {
-    format_ident!("{}_{suffix}", flag.to_string().to_uppercase())
-}
-
-/// Generates all flag variants for the all() method.
-pub fn generate_all_flags(flags: &[Flag]) -> impl Iterator<Item = TokenStream> + '_ {
-    flags.iter().map(|flag| {
-        let name = &flag.name;
-        quote! {
-            Flag::#name
-        }
-    })
 }
