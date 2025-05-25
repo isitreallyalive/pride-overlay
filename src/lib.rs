@@ -1,13 +1,18 @@
 #![no_std]
+extern crate alloc;
 
 pub use colour::Colour;
 pub use flags::Flag;
 pub use opacity::Opacity;
 
+use alloc::vec::Vec;
+use core::f32::consts::PI;
 use flags::FlagData;
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{
-    drawing::{draw_filled_circle_mut, draw_filled_rect_mut},
+    drawing::{draw_antialiased_polygon_mut, draw_filled_rect_mut},
+    pixelops::interpolate,
+    point::Point,
     rect::Rect,
 };
 use resvg::{
@@ -90,6 +95,23 @@ fn extract_flag_colours(flag_data: FlagData) -> &'static [Colour] {
     }
 }
 
+/// Creates a smooth circle by drawing an antialiased polygon with many sides
+fn draw_smooth_circle(image: &mut RgbaImage, center: (i32, i32), radius: i32, color: Rgba<u8>) {
+    // scale sides based on circumference for optimal smoothness vs performance
+    let circumference = 2.0 * PI * radius as f32;
+    let sides = (circumference / 4.0).max(32.0).min(256.0) as usize;
+    let mut points = Vec::with_capacity(sides);
+
+    for i in 0..sides {
+        let angle = 2.0 * PI * (i as f32) / (sides as f32);
+        let x = center.0 + (radius as f32 * angle.cos()) as i32;
+        let y = center.1 + (radius as f32 * angle.sin()) as i32;
+        points.push(Point::new(x, y));
+    }
+
+    draw_antialiased_polygon_mut(image, &points, color, interpolate);
+}
+
 impl Flag {
     /// Overlays the flag onto the given image. The image is modified in place.
     ///
@@ -128,7 +150,7 @@ impl Flag {
         let offset = calculate_ring_offset(thickness);
         let inner_radius = (width / 2).saturating_sub(offset) as i32;
 
-        draw_filled_circle_mut(&mut ring_overlay, center, inner_radius, Rgba([0, 0, 0, 0]));
+        draw_smooth_circle(&mut ring_overlay, center, inner_radius, Rgba([0, 0, 0, 0]));
         overlay(image, &ring_overlay, 0, 0);
     }
 }
