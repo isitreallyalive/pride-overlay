@@ -13,6 +13,15 @@ impl Colour {
     pub const fn new(r: u8, g: u8, b: u8) -> Self {
         Colour { r, g, b }
     }
+
+    /// Creates a new [Colour] from a hexadecimal value.
+    pub const fn from_hex(hex: u32) -> Self {
+        Colour {
+            r: ((hex >> 16) & 0xFF) as u8,
+            g: ((hex >> 8) & 0xFF) as u8,
+            b: (hex & 0xFF) as u8,
+        }
+    }
 }
 
 impl fmt::Display for Colour {

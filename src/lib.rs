@@ -25,17 +25,23 @@ fn draw<F>(
     let image_rgba = image.to_rgba8();
     let (width, height) = image_rgba.dimensions();
 
+    // draw flag
     let mut flag_image = RgbaImage::new(width, height);
     let colours = flag.colours();
-    let colour_size = height / colours.len() as u32;
+    let colour_size = height.div_ceil(colours.len() as u32);
     let a = opacity.unwrap_or_default().get_raw();
 
-    for (i, Colour { r, g, b }) in colours.iter().enumerate() {
-        let rect = Rect::at(0, (i as u32 * colour_size) as i32).of_size(width, colour_size);
-        let colour = Rgba([*r, *g, *b, a]);
-        draw_filled_rect_mut(&mut flag_image, rect, colour);
-    }
+    colours
+        .iter()
+        .enumerate()
+        .for_each(|(i, &Colour { r, g, b })| {
+            let y_start = (i as u32 * colour_size) as i32;
+            let rect = Rect::at(0, y_start).of_size(width, colour_size);
+            let colour = Rgba([r, g, b, a]);
+            draw_filled_rect_mut(&mut flag_image, rect, colour);
+        });
 
+    // transform flag
     if let Some(ref mut trans_fn) = flag_transform {
         trans_fn(&mut flag_image, width, height);
     }
@@ -64,7 +70,10 @@ impl Flag {
     /// - When thickness is [None]: offset = 12 pixels (default)
     /// - Inner radius = (image_width / 2) - offset
     pub fn ring(&self, image: &mut DynamicImage, opacity: Option<Opacity>, thickness: Option<u32>) {
-        let closure = |image: &mut RgbaImage, width: u32, height: u32| {
+        let opacity = opacity.unwrap_or(Opacity::OPAQUE);
+
+        // make a transparent ring in the middle of the image
+        let transform = |image: &mut RgbaImage, width: u32, height: u32| {
             let center = ((width / 2) as i32, (height / 2) as i32);
             let offset = thickness
                 .map(|thickness| thickness.min(10) * 8)
@@ -73,11 +82,6 @@ impl Flag {
             draw_filled_circle_mut(image, center, radius, Rgba([0, 0, 0, 0]));
         };
 
-        draw(
-            self,
-            image,
-            Some(opacity.unwrap_or(Opacity::new(1.))),
-            Some(closure),
-        )
+        draw(self, image, Some(opacity), Some(transform))
     }
 }

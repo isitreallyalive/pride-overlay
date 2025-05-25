@@ -5,6 +5,13 @@ use core::fmt;
 pub struct Opacity(u8);
 
 impl Opacity {
+    /// Fully transparent (0%)
+    pub const TRANSPARENT: Self = Self(0);
+    /// Half transparent (50%)
+    pub const HALF: Self = Self(128);
+    /// Fully opaque (100%)
+    pub const OPAQUE: Self = Self(255);
+
     /// Creates an [Opacity] from a percentage value.
     ///
     /// This percentage is clamped between 0.0 and 1.0, then mapped to a [u8].
@@ -33,7 +40,7 @@ impl Opacity {
 
 impl Default for Opacity {
     fn default() -> Self {
-        Self::new(0.5)
+        Self::HALF
     }
 }
 
