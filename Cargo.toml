@@ -7,7 +7,8 @@ authors = ["newt <hi@newty.dev>"]
 edition = "2024"
 
 exclude = [
-    "examples"
+    "examples",
+    "flags/readme"
 ]
 
 [features]

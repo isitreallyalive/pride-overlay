@@ -5,7 +5,7 @@
 //!
 //! |       Input        |         [Overlay::apply]         |          [Ring::apply]          |
 //! |:------------------:|:--------------------------------:|:-------------------------------:|
-//! | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/v2/examples/input.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/v2/examples/out/overlay/pansexual.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/v2/examples/out/ring/transgender.webp) |
+//! | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/input.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/overlay/intersex.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/ring/transgender.webp) |
 //!
 //! # High level API
 //! Load an image with the [`image`](https://docs.rs/image) crate, and overlay [Flag::Transgender] with 40% opacity.

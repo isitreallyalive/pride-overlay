@@ -16,6 +16,7 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
     let flag_constants = generate_flag_constants(&flags);
     let flag_data_matches = generate_flag_data_matches(&flags);
     let flag_name_matches = generate_flag_name_matches(&flags);
+    let all_flags = generate_all_flags(&flags);
 
     let generated = quote! {
         /// Represents various pride flags.
@@ -43,6 +44,12 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
                     #(#flag_name_matches),*,
                     Flag::Custom(_) => "Custom",
                 }
+            }
+
+            pub const fn all() -> &'static [Flag] {
+                &[
+                    #(#all_flags),*
+                ]
             }
         }
     };

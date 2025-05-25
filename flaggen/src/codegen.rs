@@ -7,7 +7,11 @@ pub fn generate_flag_variants(flags: &[Flag]) -> impl Iterator<Item = TokenStrea
     flags.iter().map(|flag| {
         let name = &flag.name;
         let lower_name = name.to_string().to_lowercase();
-        let doc = format!(r#" <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/v2/flags/{lower_name}.svg" alt="{lower_name} flag" height="125px">"#);
+        let path = match flag.definition {
+            FlagDefinition::Special(_, _) => "",
+            _ => "/readme"
+        };
+        let doc = format!(r#" <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags{path}/{lower_name}.svg" alt="{lower_name} flag" height="125px">"#);
         quote! {
             #[doc = #doc]
             #name
@@ -117,4 +121,14 @@ pub fn create_colour_const_name(flag_name: &syn::Ident) -> syn::Ident {
 /// Creates a constant name for flag data.
 pub fn create_data_const_name(flag_name: &syn::Ident) -> syn::Ident {
     format_ident!("{}_DATA", flag_name.to_string().to_uppercase())
+}
+
+/// Generates all flag variants for the all() method.
+pub fn generate_all_flags(flags: &[Flag]) -> impl Iterator<Item = TokenStream> + '_ {
+    flags.iter().map(|flag| {
+        let name = &flag.name;
+        quote! {
+            Flag::#name
+        }
+    })
 }

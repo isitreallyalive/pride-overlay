@@ -24,10 +24,9 @@ impl Effect for Ring {
         let mut ring_overlay = create_flag_overlay(ring_flag, width, height, self.opacity);
 
         let center = ((width / 2) as i32, (height / 2) as i32);
-        let offset = self.thickness.min(10) * 8;
-        let inner_radius = (width / 2).saturating_sub(offset) as i32;
+        let radius = (width / 2).saturating_sub(self.thickness) as i32;
 
-        draw_smooth_circle(&mut ring_overlay, center, inner_radius, Rgba([0, 0, 0, 0]));
+        draw_smooth_circle(&mut ring_overlay, center, radius, Rgba([0, 0, 0, 0]));
         overlay(image, &ring_overlay, 0, 0);
     }
 }
