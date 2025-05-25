@@ -14,17 +14,17 @@ pub struct Flag {
 }
 
 pub enum FlagDefinition {
-    Colors(Vec<Color>),
-    Path(String),
+    Colors(Vec<Colour>),
+    Special(String, Vec<Colour>),
 }
 
-pub struct Color {
+pub struct Colour {
     pub r: u8,
     pub g: u8,
     pub b: u8,
 }
 
-impl Parse for Color {
+impl Parse for Colour {
     fn parse(input: ParseStream) -> Result<Self> {
         let content;
         syn::parenthesized!(content in input);
@@ -35,7 +35,7 @@ impl Parse for Color {
         content.parse::<Token![,]>()?;
         let b: LitInt = content.parse()?;
 
-        Ok(Color {
+        Ok(Colour {
             r: r.base10_parse()?,
             g: g.base10_parse()?,
             b: b.base10_parse()?,
@@ -53,9 +53,11 @@ impl Parse for Definitions {
 
             let definition = if input.peek(LitStr) {
                 let path: LitStr = input.parse()?;
-                FlagDefinition::Path(path.value())
+                let colours: Punctuated<Colour, Token![,]> =
+                    Punctuated::parse_separated_nonempty(input)?;
+                FlagDefinition::Special(path.value(), colours.into_iter().collect())
             } else {
-                let colours: Punctuated<Color, Token![,]> =
+                let colours: Punctuated<Colour, Token![,]> =
                     Punctuated::parse_separated_nonempty(input)?;
                 FlagDefinition::Colors(colours.into_iter().collect())
             };
