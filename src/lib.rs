@@ -1,156 +1,46 @@
+//! # Overview
+//!
+//! This crate provides various image processing utilities for pride flags, including overlaying flags onto images and drawing rings around images using flag colors.
+//! It is designed to work in a `#![no_std]` environment.
+//!
+//! |       Input        |         [Flag::overlay]         |          [Flag::ring]          |
+//! |:------------------:|:-------------------------------:|:------------------------------:|
+//! | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/v2/examples/input.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/v2/examples/out/overlay/pansexual.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/v2/examples/out/ring/transgender.webp) |
+//!
+//! # High level API
+//! Load an image with the [`image`](https://docs.rs/image) crate, and overlay [Flag::Transgender] with default opacity.
+//!
+//! ```rust
+//! use pride_overlay::Flag;
+//!
+//! let mut image = image::open("path/to/image.webp")?;
+//! Flag::Transgender.overlay(&mut image);
+//! ```
+
 #![no_std]
 extern crate alloc;
-
-pub use colour::Colour;
-pub use flags::Flag;
-pub use opacity::Opacity;
-
-use alloc::vec::Vec;
-use core::f32::consts::PI;
-use flags::FlagData;
-use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba, RgbaImage, imageops::overlay};
-use imageproc::{
-    drawing::{draw_antialiased_polygon_mut, draw_filled_rect_mut},
-    pixelops::interpolate,
-    point::Point,
-    rect::Rect,
-};
-use resvg::{
-    tiny_skia::{Pixmap, Transform},
-    usvg::{self, Tree},
-};
 
 mod colour;
 mod flags;
 mod opacity;
 
-/// Creates a flag overlay image with the specified dimensions and opacity
-fn create_flag_overlay(flag: &Flag, width: u32, height: u32, opacity: Opacity) -> RgbaImage {
-    let alpha = opacity.get_raw();
+mod overlay;
+mod ring;
 
-    match flag.data() {
-        FlagData::Special(data, _) => create_special_flag_overlay(data, width, height, alpha),
-        FlagData::Colours(colours) => create_stripe_flag_overlay(colours, width, height, alpha),
-    }
-}
+pub use colour::Colour;
+pub use flags::Flag;
+pub use opacity::Opacity;
 
-/// Creates an overlay from special flag image data
-fn create_special_flag_overlay(data: &[u8], width: u32, height: u32, alpha: u8) -> RgbaImage {
-    let tree = Tree::from_data(data, &usvg::Options::default()).unwrap();
-    let mut pixmap = Pixmap::new(width, height).unwrap();
-
-    // calculate scale to fit the image
-    let svg_size = tree.size();
-    let scale_x = width as f32 / svg_size.width();
-    let scale_y = height as f32 / svg_size.height();
-    let scale = scale_x.max(scale_y); // Use max to fill the area
-    let transform = Transform::from_scale(scale, scale).post_translate(
-        (width as f32 - svg_size.width() * scale) / 2.0,
-        (height as f32 - svg_size.height() * scale) / 2.0,
-    );
-
-    resvg::render(&tree, transform, &mut pixmap.as_mut());
-
-    // convert svg to image crate
-    let mut flag: RgbaImage = ImageBuffer::from_raw(width, height, pixmap.data().to_vec()).unwrap();
-
-    // apply opacity
-    flag.pixels_mut().for_each(|pixel| {
-        pixel[3] = alpha;
-    });
-
-    flag
-}
-
-/// Creates a horizontal stripe flag overlay from colors
-fn create_stripe_flag_overlay(colours: &[Colour], width: u32, height: u32, alpha: u8) -> RgbaImage {
-    let mut flag_image = RgbaImage::new(width, height);
-    let stripe_height = height / colours.len() as u32;
-
-    for (i, &Colour { r, g, b }) in colours.iter().enumerate() {
-        let y_start = (i as u32 * stripe_height) as i32;
-        let rect = Rect::at(0, y_start).of_size(width, stripe_height);
-        let colour = Rgba([r, g, b, alpha]);
-        draw_filled_rect_mut(&mut flag_image, rect, colour);
-    }
-
-    flag_image
-}
-
-/// Calculates the ring thickness offset in pixels
-fn calculate_ring_offset(thickness: Option<u32>) -> u32 {
-    const MAX_THICKNESS: u32 = 10;
-    const THICKNESS_MULTIPLIER: u32 = 8;
-    const DEFAULT_OFFSET: u32 = 12;
-
-    thickness
-        .map(|t| t.min(MAX_THICKNESS) * THICKNESS_MULTIPLIER)
-        .unwrap_or(DEFAULT_OFFSET)
-}
-
-/// Extracts colors from flag data, regardless of variant
-fn extract_flag_colours(flag_data: FlagData) -> &'static [Colour] {
-    match flag_data {
-        FlagData::Special(_, colours) | FlagData::Colours(colours) => colours,
-    }
-}
-
-/// Creates a smooth circle by drawing an antialiased polygon with many sides
-fn draw_smooth_circle(image: &mut RgbaImage, center: (i32, i32), radius: i32, color: Rgba<u8>) {
-    // scale sides based on circumference for optimal smoothness vs performance
-    let circumference = 2.0 * PI * radius as f32;
-    let sides = (circumference / 4.0).max(32.0).min(256.0) as usize;
-    let mut points = Vec::with_capacity(sides);
-
-    for i in 0..sides {
-        let angle = 2.0 * PI * (i as f32) / (sides as f32);
-        let x = center.0 + (radius as f32 * angle.cos()) as i32;
-        let y = center.1 + (radius as f32 * angle.sin()) as i32;
-        points.push(Point::new(x, y));
-    }
-
-    draw_antialiased_polygon_mut(image, &points, color, interpolate);
-}
+use image::DynamicImage;
 
 impl Flag {
     /// Overlays the flag onto the given image. The image is modified in place.
-    ///
-    /// ### Arguments
-    /// * `image` - The target image to overlay the flag onto
-    /// * `opacity` - Controls the transparency of the flag overlay. Uses 50% if [None].
-    pub fn overlay(&self, image: &mut DynamicImage, opacity: Option<Opacity>) {
-        let (width, height) = image.dimensions();
-        let opacity = opacity.unwrap_or_default();
-        let flag_overlay = create_flag_overlay(self, width, height, opacity);
-
-        overlay(image, &flag_overlay, 0, 0);
+    pub fn overlay(&self, image: &mut DynamicImage) {
+        overlay::apply(self, image, Opacity::HALF);
     }
 
     /// Draws a ring around the image using the flag's colours. The image is modified in place.
-    ///
-    /// ### Arguments
-    /// * `image` - The target image to draw the ring on
-    /// * `opacity` - Controls the transparency of the ring. Uses 100% if [None].
-    /// * `thickness` - Ring thickness (1-10, multiplied by 8). Uses 12 pixels if [None].
-    ///
-    /// ### Ring Calculation
-    /// - Offset = min(thickness, 10) * 8 (capped at 80 pixels) or 12 (default)
-    /// - Inner radius = (image_width / 2) - offset
-    pub fn ring(&self, image: &mut DynamicImage, opacity: Option<Opacity>, thickness: Option<u32>) {
-        let (width, height) = image.dimensions();
-        let opacity = opacity.unwrap_or(Opacity::OPAQUE);
-
-        // create ring overlay using flag colours
-        let colours = extract_flag_colours(self.data());
-        let ring_flag = Flag::Custom(colours);
-        let mut ring_overlay = create_flag_overlay(&ring_flag, width, height, opacity);
-
-        // cut out the inner circle to create a ring effect
-        let center = ((width / 2) as i32, (height / 2) as i32);
-        let offset = calculate_ring_offset(thickness);
-        let inner_radius = (width / 2).saturating_sub(offset) as i32;
-
-        draw_smooth_circle(&mut ring_overlay, center, inner_radius, Rgba([0, 0, 0, 0]));
-        overlay(image, &ring_overlay, 0, 0);
+    pub fn ring(&self, image: &mut DynamicImage) {
+        ring::ring(self, image, Opacity::OPAQUE, None);
     }
 }

@@ -6,7 +6,8 @@ use quote::{format_ident, quote};
 pub fn generate_flag_variants(flags: &[Flag]) -> impl Iterator<Item = TokenStream> + '_ {
     flags.iter().map(|flag| {
         let name = &flag.name;
-        let doc = format!(" The {} pride flag.", name);
+        let lower_name = name.to_string().to_lowercase();
+        let doc = format!(r#" <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/v2/flags/{lower_name}.svg" alt="{lower_name} flag" height="125px">"#);
         quote! {
             #[doc = #doc]
             #name

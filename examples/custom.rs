@@ -13,7 +13,7 @@ const CATPPUCCIN: &[Colour] = &[
 
 fn main() -> ImageResult<()> {
     let mut image = image::open("examples/input.webp")?;
-    Flag::Custom(CATPPUCCIN).overlay(&mut image, None);
+    Flag::Custom(CATPPUCCIN).overlay(&mut image);
     image.save("examples/out/custom.webp")?;
     Ok(())
 }

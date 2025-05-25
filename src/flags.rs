@@ -1,6 +1,6 @@
 use crate::Colour;
 
-pub(crate) enum FlagData {
+pub enum FlagData {
     Colours(&'static [Colour]),
     Special(&'static [u8], &'static [Colour]),
 }

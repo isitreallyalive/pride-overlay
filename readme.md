@@ -1,6 +1,6 @@
 # pride-overlay
 
-|        base image        |      [overlay](examples/overlay.rs)      |        [ring](examples/ring.rs)         |
+|          input           |      [overlay](examples/overlay.rs)      |        [ring](examples/ring.rs)         |
 | :----------------------: | :--------------------------------------: | :-------------------------------------: |
 | ![](examples/input.webp) | ![](examples/out/overlay/pansexual.webp) | ![](examples/out/ring/transgender.webp) |
 
@@ -13,8 +13,8 @@
 
 ### supported flags
 
-|    flag     |                    image                    |
-| :---------: | :-----------------------------------------: |
+|    flag     |                   image                    |
+| :---------: | :----------------------------------------: |
 |   rainbow   |     ![rainbow flag](flags/rainbow.svg)     |
 | transgender | ![transgender flag](flags/transgender.svg) |
 |  intersex   |    ![intersex flag](flags/intersex.svg)    |

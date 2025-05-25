@@ -18,7 +18,7 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
     let flag_name_matches = generate_flag_name_matches(&flags);
 
     let generated = quote! {
-        /// Represents different pride flags that can be used as overlays or rings.
+        /// Represents various pride flags.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         pub enum Flag {
             #(#flag_variants),*,
