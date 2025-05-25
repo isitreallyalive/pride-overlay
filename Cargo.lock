@@ -255,6 +255,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "flaggen"
+version = "0.0.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "flate2"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -694,6 +703,7 @@ dependencies = [
 name = "pride-overlay"
 version = "2.0.0"
 dependencies = [
+ "flaggen",
  "image",
  "imageproc",
 ]

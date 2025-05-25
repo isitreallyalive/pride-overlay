@@ -2,10 +2,10 @@
 
 |        base image        |          [overlay](examples/overlay.rs)           |          [ring](examples/ring.rs)           |
 | :----------------------: | :------------------------: | :---------------------: |
-| ![](examples/input.webp) | ![](examples/overlay.webp) | ![](examples/ring.webp) |
+| ![](examples/input.webp) | ![](examples/out/overlay/pansexual.webp) | ![](examples/out/ring/transgender.webp) |
 
-![Crates.io Version](https://img.shields.io/crates/v/pride-overlay?style=for-the-badge&labelColor=%234c4f69&color=%23e64553)
-![Crates.io Downloads](https://img.shields.io/crates/d/pride-overlay?style=for-the-badge&labelColor=%234c4f69&color=%23e64553&label=Downloads)
+![Crates.io Version](https://img.shields.io/crates/v/pride-overlay?style=for-the-badge&labelColor=%23313244&color=%23e64553)
+![Crates.io Downloads](https://img.shields.io/crates/d/pride-overlay?style=for-the-badge&labelColor=%23313244&color=%23e64553&label=Downloads)
 
 > overlay pride flags on images
 

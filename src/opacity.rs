@@ -15,11 +15,13 @@ impl Opacity {
     /// Creates an [Opacity] from a percentage value.
     ///
     /// This percentage is clamped between 0.0 and 1.0, then mapped to a [u8].
-    pub const fn new(percentage: f32) -> Self {
+    ///
+    /// This function returns an [Option] for ease of consumption, it will never be [None].
+    pub const fn new(percentage: f32) -> Option<Self> {
         // clamp between 0% and 100%
         let clamped = percentage.clamp(0.0, 1.);
         // turn into a u8 value between 0 and 255
-        Self((clamped * u8::MAX as f32) as u8)
+        Some(Self((clamped * u8::MAX as f32) as u8))
     }
 
     /// Returns the [Opacity] as a percentage value
@@ -28,8 +30,10 @@ impl Opacity {
     }
 
     /// Creates an [Opacity] with the given raw [u8] value.
-    pub const fn raw(opacity: u8) -> Self {
-        Self(opacity)
+    ///
+    /// This function returns an [Option] for ease of consumption, it will never be [None].
+    pub const fn raw(opacity: u8) -> Option<Self> {
+        Some(Self(opacity))
     }
 
     /// Returns the raw [u8] value of the [Opacity].
