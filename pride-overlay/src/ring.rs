@@ -20,7 +20,7 @@ impl Effect for Ring {
         let (width, height) = image.dimensions();
 
         let colours = extract_flag_colours(self.flag.data());
-        let ring_flag = Flag::Custom(colours);
+        let ring_flag = Flag::Custom { colours, svg: None };
         let mut ring_overlay = create_flag_overlay(ring_flag, width, height, self.opacity);
 
         let center = ((width / 2) as i32, (height / 2) as i32);

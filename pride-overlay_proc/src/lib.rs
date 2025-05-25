@@ -23,8 +23,11 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
         #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         pub enum Flag {
             #(#flag_variants),*,
-            /// A custom flag with user-provided colors.
-            Custom(&'static [crate::Colour]),
+            /// A custom flag.
+            Custom {
+                colours: &'static [Colour],
+                svg: Option<&'static [u8]>
+            },
         }
 
         #(#flag_constants)*
@@ -34,7 +37,11 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
             pub(crate) const fn data(&self) -> FlagData {
                 match self {
                     #(#flag_data_matches),*,
-                    Flag::Custom(colours) => FlagData::Colours(colours),
+                    Flag::Custom { colours, svg } => if let Some(svg) = svg {
+                        FlagData::Special(svg, colours)
+                    } else {
+                        FlagData::Colours(colours)
+                    },
                 }
             }
 
@@ -42,7 +49,7 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
             pub const fn name(&self) -> &'static str {
                 match self {
                     #(#flag_name_matches),*,
-                    Flag::Custom(_) => "Custom",
+                    Flag::Custom { .. } => "Custom",
                 }
             }
 
