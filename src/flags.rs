@@ -1,6 +1,7 @@
 /// Generates an enum `Flag` with variants for each flag, and constants for the colours.
 macro_rules! generate_flags {
     ($($name:ident : $(($r:expr, $g:expr, $b:expr)),+$(;)?);+) => {
+        /// A pride flag.
         pub enum Flag {
             $(
                 $name,

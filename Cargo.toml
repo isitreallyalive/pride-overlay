@@ -11,11 +11,13 @@ exclude = [
 ]
 
 [features]
-default = ["default-formats", "rayon"]
+default = ["common-formats"]
 rayon = ["image/rayon", "imageproc/rayon"]
-default-formats = ["avif", "bmp", "dds", "exr", "ff", "gif", "hdr", "ico", "jpeg", "png", "pnm", "qoi", "tga", "tiff", "webp"]
 
 # formats
+common-formats = ["jpeg", "png", "webp"]
+all-formats = ["avif", "bmp", "dds", "exr", "ff", "gif", "hdr", "ico", "jpeg", "png", "pnm", "qoi", "tga", "tiff", "webp"]
+
 avif = ["image/avif"]
 bmp = ["image/bmp"]
 dds = ["image/dds"]
@@ -35,4 +37,3 @@ webp = ["image/webp"]
 [dependencies]
 image = { version = "0.25.6", default-features = false }
 imageproc = { version = "0.25.0", default-features = false }
-strum-lite = "0.1.1"

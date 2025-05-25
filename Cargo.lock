@@ -696,7 +696,6 @@ version = "2.0.0"
 dependencies = [
  "image",
  "imageproc",
- "strum-lite",
 ]
 
 [[package]]
@@ -962,12 +961,6 @@ name = "smallvec"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8917285742e9f3e1683f0a9c4e6b57960b7314d0b08d30d1ecd426713ee2eee9"
-
-[[package]]
-name = "strum-lite"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdbea1af582685244c1e75994dfedd9f2115d4a77714824320b774a2604c5da9"
 
 [[package]]
 name = "syn"
