@@ -2,7 +2,7 @@
 name = "pride-overlay"
 version = "2.0.0"
 publish = false
-description = "Overlay pride flags on images"
+description = "overlay pride flags on images"
 authors = ["newt <hi@newty.dev>"]
 edition = "2024"
 

@@ -1,5 +1,5 @@
 use image::ImageResult;
-use pride_overlay::{Colour, Flag, Opacity};
+use pride_overlay::{Colour, Flag};
 
 /// https://catppuccin.com/palette
 const CATPPUCCIN: &[Colour] = &[
@@ -12,8 +12,8 @@ const CATPPUCCIN: &[Colour] = &[
 ];
 
 fn main() -> ImageResult<()> {
-    let mut image = image::open("examples/input.jpg")?;
-    Flag::Custom(CATPPUCCIN).overlay(&mut image, Some(Opacity::new(0.8)));
-    image.save("examples/custom.png")?;
+    let mut image = image::open("examples/input.webp")?;
+    Flag::Custom(CATPPUCCIN).overlay(&mut image, None);
+    image.save("examples/custom.webp")?;
     Ok(())
 }
