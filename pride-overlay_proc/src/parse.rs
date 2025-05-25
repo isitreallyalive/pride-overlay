@@ -15,7 +15,11 @@ pub struct Flag {
 
 pub enum FlagDefinition {
     Colors(Vec<Colour>),
-    Svg(String, Vec<Colour>),
+    Svg {
+        path: String,
+        scale_mode: Ident,
+        colours: Vec<Colour>,
+    },
 }
 
 pub struct Colour {
@@ -62,11 +66,16 @@ impl Parse for Definitions {
             let name: Ident = input.parse()?;
             input.parse::<Token![:]>()?;
 
-            let definition = if input.peek(LitStr) {
+            let definition = if input.peek(Ident) && input.peek2(LitStr) {
+                let scale_mode: Ident = input.parse()?;
                 let path: LitStr = input.parse()?;
                 let colours: Punctuated<Colour, Token![,]> =
                     Punctuated::parse_separated_nonempty(input)?;
-                FlagDefinition::Svg(path.value(), colours.into_iter().collect())
+                FlagDefinition::Svg {
+                    path: path.value(),
+                    scale_mode,
+                    colours: colours.into_iter().collect(),
+                }
             } else {
                 let colours: Punctuated<Colour, Token![,]> =
                     Punctuated::parse_separated_nonempty(input)?;

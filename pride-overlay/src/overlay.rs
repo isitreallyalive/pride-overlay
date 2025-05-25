@@ -1,5 +1,5 @@
-use crate::flags::FlagData;
-use crate::{Colour, Effect, Flag, Opacity};
+use crate::flags::{FlagData, Svg};
+use crate::{Colour, Effect, Flag, Opacity, ScaleMode};
 use image::GenericImageView;
 use image::{ImageBuffer, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_filled_rect_mut, rect::Rect};
@@ -35,23 +35,37 @@ pub(crate) fn create_flag_overlay(
     let alpha = opacity.get_raw();
 
     match flag.data() {
-        FlagData::Svg(data, _) => create_svg_flag_overlay(data, width, height, alpha),
+        FlagData::Svg(Svg { data, scale_mode }, _) => {
+            create_svg_flag_overlay(data, width, height, alpha, scale_mode)
+        }
         FlagData::Colours(colours) => create_stripe_flag_overlay(colours, width, height, alpha),
     }
 }
 
-fn create_svg_flag_overlay(data: &[u8], width: u32, height: u32, alpha: u8) -> RgbaImage {
+fn create_svg_flag_overlay(
+    data: &[u8],
+    width: u32,
+    height: u32,
+    alpha: u8,
+    scale_mode: ScaleMode,
+) -> RgbaImage {
     let tree = Tree::from_data(data, &usvg::Options::default()).unwrap();
     let mut pixmap = Pixmap::new(width, height).unwrap();
 
     let svg_size = tree.size();
     let scale_x = width as f32 / svg_size.width();
     let scale_y = height as f32 / svg_size.height();
-    let scale = scale_x.max(scale_y);
-    let transform = Transform::from_scale(scale, scale).post_translate(
-        (width as f32 - svg_size.width() * scale) / 2.0,
-        (height as f32 - svg_size.height() * scale) / 2.0,
-    );
+
+    let transform = match scale_mode {
+        ScaleMode::Fill => {
+            let scale = scale_x.max(scale_y);
+            Transform::from_scale(scale, scale).post_translate(
+                (width as f32 - svg_size.width() * scale) / 2.0,
+                (height as f32 - svg_size.height() * scale) / 2.0,
+            )
+        }
+        ScaleMode::Stretch => Transform::from_scale(scale_x, scale_y),
+    };
 
     resvg::render(&tree, transform, &mut pixmap.as_mut());
 

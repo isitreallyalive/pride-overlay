@@ -1,6 +1,7 @@
 use crate::parse::{Colour, Flag, FlagDefinition};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use syn::Ident;
 
 /// Generates the Flag enum variants from flag definitions.
 pub fn generate_flag_variants(flags: &[Flag]) -> impl Iterator<Item = TokenStream> + '_ {
@@ -8,10 +9,16 @@ pub fn generate_flag_variants(flags: &[Flag]) -> impl Iterator<Item = TokenStrea
         let name = &flag.name;
         let lower_name = name.to_string().to_lowercase();
         let path = match flag.definition {
-            FlagDefinition::Svg(_, _) => "",
-            _ => "/readme"
+            FlagDefinition::Svg { .. } => "",
+            _ => "/readme",
         };
-        let doc = format!(r#" <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags{path}/{lower_name}.svg" alt="{lower_name} flag" height="125px">"#);
+        let doc = format!(
+            r#" | Flag | [Overlay][crate::Overlay] | [Ring][crate::Ring] |
+ |----|----|----|
+ | {} | {} | {} |"#,
+        format!(r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags{path}/{lower_name}.svg" alt="{lower_name} flag" height="125px">"#),
+        format!(r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/out/overlay/{lower_name}.webp" alt="{lower_name} overlay" height="125px">"#),
+        format!(r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/out/ring/{lower_name}.webp" alt="{lower_name} ring" height="125px">"#),);
         quote! {
             #[doc = #doc]
             #name
@@ -23,12 +30,14 @@ pub fn generate_flag_variants(flags: &[Flag]) -> impl Iterator<Item = TokenStrea
 pub fn generate_flag_constants(flags: &[Flag]) -> impl Iterator<Item = TokenStream> + '_ {
     flags.iter().map(|flag| {
         let name = &flag.name;
-        let colour_const = create_colour_const_name(name);
+        let colour_const = create_const_name(name, "COLOURS");
 
         match &flag.definition {
-            FlagDefinition::Svg(path, colours) => {
-                generate_svg_flag_constants(name, path, colours, &colour_const)
-            }
+            FlagDefinition::Svg {
+                path,
+                scale_mode,
+                colours,
+            } => generate_svg_flag_constants(name, path, scale_mode, colours, &colour_const),
             FlagDefinition::Colors(colours) => {
                 generate_color_flag_constants(colours, &colour_const)
             }
@@ -40,14 +49,19 @@ pub fn generate_flag_constants(flags: &[Flag]) -> impl Iterator<Item = TokenStre
 pub fn generate_svg_flag_constants(
     name: &syn::Ident,
     path: &str,
+    scale_mode: &Ident,
     colours: &[Colour],
     colour_const: &syn::Ident,
 ) -> TokenStream {
     let file_path = format!("../../flags/{}", path);
-    let data_const = create_data_const_name(name);
+    let scale_const = create_const_name(name, "SCALE");
+    let data_const = create_const_name(name, "DATA");
     let colour_tokens = generate_colour_tokens(colours);
 
     quote! {
+        /// The scaling mode to use for the flag.
+        const #scale_const: ScaleMode = ScaleMode::#scale_mode;
+
         /// Embedded image data for the flag.
         const #data_const: &'static [u8] = include_bytes!(#file_path);
 
@@ -88,13 +102,17 @@ pub fn generate_colour_tokens(colours: &[Colour]) -> impl Iterator<Item = TokenS
 pub fn generate_flag_data_matches(flags: &[Flag]) -> impl Iterator<Item = TokenStream> + '_ {
     flags.iter().map(|flag| {
         let name = &flag.name;
-        let colour_const = create_colour_const_name(name);
+        let scale_const = create_const_name(name, "SCALE");
+        let colour_const = create_const_name(name, "COLOURS");
 
         match &flag.definition {
-            FlagDefinition::Svg(_, _) => {
-                let data_const = create_data_const_name(name);
+            FlagDefinition::Svg { .. } => {
+                let data_const = create_const_name(name, "DATA");
                 quote! {
-                    Flag::#name => FlagData::Svg(#data_const, #colour_const)
+                    Flag::#name => FlagData::Svg(Svg {
+                        data: #data_const,
+                        scale_mode: #scale_const
+                    }, #colour_const)
                 }
             }
             FlagDefinition::Colors(_) => {
@@ -117,14 +135,9 @@ pub fn generate_flag_name_matches(flags: &[Flag]) -> impl Iterator<Item = TokenS
     })
 }
 
-/// Creates a constant name for flag colors.
-pub fn create_colour_const_name(flag_name: &syn::Ident) -> syn::Ident {
-    format_ident!("{}_COLOURS", flag_name.to_string().to_uppercase())
-}
-
-/// Creates a constant name for flag data.
-pub fn create_data_const_name(flag_name: &syn::Ident) -> syn::Ident {
-    format_ident!("{}_DATA", flag_name.to_string().to_uppercase())
+/// Creates a constant name relating to a flag.
+pub fn create_const_name(flag: &syn::Ident, suffix: &str) -> syn::Ident {
+    format_ident!("{}_{suffix}", flag.to_string().to_uppercase())
 }
 
 /// Generates all flag variants for the all() method.

@@ -29,7 +29,12 @@ mod ring;
 
 pub mod prelude {
     pub use crate::{
-        Effect, colour::Colour, flags::Flag, opacity::Opacity, overlay::Overlay, ring::Ring,
+        Effect,
+        colour::Colour,
+        flags::{Flag, ScaleMode, Svg},
+        opacity::Opacity,
+        overlay::Overlay,
+        ring::Ring,
     };
 }
 #[doc(inline)]

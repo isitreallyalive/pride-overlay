@@ -20,13 +20,13 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
 
     let generated = quote! {
         /// Represents various pride flags.
-        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+        #[derive(Clone, Copy, PartialEq, Eq)]
         pub enum Flag {
             #(#flag_variants),*,
             /// A custom flag.
             Custom {
                 colours: &'static [Colour],
-                svg: Option<&'static [u8]>
+                svg: Option<Svg>,
             },
         }
 
@@ -38,7 +38,7 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
                 match self {
                     #(#flag_data_matches),*,
                     Flag::Custom { colours, svg } => if let Some(svg) = svg {
-                        FlagData::Svg(svg, colours)
+                        FlagData::Svg(*svg, colours)
                     } else {
                         FlagData::Colours(colours)
                     },
@@ -49,7 +49,7 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
             pub const fn name(&self) -> &'static str {
                 match self {
                     #(#flag_name_matches),*,
-                    Flag::Custom { ..} => "Custom",
+                    Flag::Custom { .. } => "Custom",
                 }
             }
 
