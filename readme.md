@@ -15,11 +15,11 @@
 
 |       flag         |              image               |
 |--------------------|----------------------------------|
-| bisexual           | ![bisexual flag](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/bisexual.svg) |
-| intersex           | ![intersex flag](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/intersex.svg)        |
-| pansexual          | ![pansexual flag](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/pansexual.svg)   |
-| rainbow            | ![rainbow flag](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/rainbow.svg)     |
-| transgender        | ![transgender flag](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/transgender.svg) |
+| bisexual           | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/bisexual.svg" height="125" alt="bisexual flag"> |
+| intersex           | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/intersex.svg" height="125" alt="intersex flag">        |
+| pansexual          | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/pansexual.svg" height="125" alt="pansexual flag">   |
+| rainbow            | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/rainbow.svg" height="125" alt="rainbow flag">     |
+| transgender        | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/transgender.svg" height="125" alt="transgender flag"> |
 
 is there a flag you want to see added? [open an issue](https://github.com/isitreallyalive/pride-overlay/issues/new?template=flag-request.md)
 
