@@ -1,18 +1,18 @@
 ---
-name: Flag request
-about: Request a new pride flag to be added to the library
-title: Add [FLAG] flag
+name: 🏳️‍🌈 flag request
+about: request a new pride flag to be added to the library
+title: add [FLAG] flag
 labels: enhancement, good first issue
 assignees: ''
 
 ---
 
-**Flag Name:** 
-<!-- e.g., Lesbian, Bisexual, Aromantic, etc. -->
+**flag name:** 
+<!-- e.g., lesbian, bisexual, aromantic, etc. -->
 
-**Flag Description:**
-<!-- Brief description of what this flag represents -->
+**flag description:**
+<!-- brief description of what this flag represents -->
 
-**Reference Image or Source:**
-<!-- Please provide a link to an authoritative source for the flag design if possible -->
-<!-- This helps ensure we use the correct colours and proportions -->
+**reference image or source:**
+<!-- please provide a link to an authoritative source for the flag design if possible -->
+<!-- this helps ensure we use the correct colours and proportions -->

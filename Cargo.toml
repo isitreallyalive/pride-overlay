@@ -1,43 +1,26 @@
-[package]
-name = "pride-overlay"
-version = "2.0.0"
-publish = false
-description = "overlay pride flags on images"
-authors = ["newt <hi@newty.dev>"]
-edition = "2024"
-
-exclude = [
-    "examples",
-    "flags/readme"
+[workspace]
+resolver = "3"
+members = [
+    "pride-overlay",
+    "pride-overlay_proc"
 ]
 
-[features]
-default = ["common-formats"]
-rayon = ["image/rayon", "imageproc/rayon"]
+[workspace.package]
+edition = "2024"
+authors = ["newt <hi@newty.dev>"]
 
-# formats
-common-formats = ["jpeg", "png", "webp"]
-all-formats = ["avif", "bmp", "dds", "exr", "ff", "gif", "hdr", "ico", "jpeg", "png", "pnm", "qoi", "tga", "tiff", "webp"]
+keywords = ["pride", "lgbtq", "flags", "image-processing", "graphics"]
+categories = ["graphics", "multimedia::images"]
 
-avif = ["image/avif"]
-bmp = ["image/bmp"]
-dds = ["image/dds"]
-exr = ["image/exr"]
-ff = ["image/ff"]
-gif = ["image/gif"]
-hdr = ["image/hdr"]
-ico = ["image/ico"]
-jpeg = ["image/jpeg"]
-png = ["image/png"]
-pnm = ["image/pnm"]
-qoi = ["image/qoi"]
-tga = ["image/tga"]
-tiff = ["image/tiff"]
-webp = ["image/webp"]
+license-file = "license.md"
+repository = "https://github.com/isitreallyalive/pride-overlay"
 
-[dependencies]
+[workspace.dependencies]
 bon = "3.6.3"
-flaggen = { version = "0.0.0", path = "flaggen" }
 image = { version = "0.25.6", default-features = false }
 imageproc = { version = "0.25.0", default-features = false }
+proc = { path = "pride-overlay_proc" }
+proc-macro2 = "1.0.95"
+quote = "1.0.40"
 resvg = { version = "0.45.1", default-features = false }
+syn = "2.0.101"

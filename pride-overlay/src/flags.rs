@@ -5,7 +5,7 @@ pub enum FlagData {
     Special(&'static [u8], &'static [Colour]),
 }
 
-flaggen::generate_flags! {
+proc::generate_flags! {
     Bisexual: (214, 2 , 112 :2), (155, 79, 150 :1), (0, 56, 168 :2)
     Intersex: "intersex.svg" (255, 216, 0), (121, 2, 170)
     Pansexual: (255, 33, 140), (255, 216, 0), (33, 177, 255)

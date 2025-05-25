@@ -1,11 +1,10 @@
 //! # Overview
 //!
 //! This crate provides various image processing utilities for pride flags, including overlaying flags onto images and drawing rings around images using flag colors.
-//! It is designed to work in a `#![no_std]` environment.
 //!
 //! |       Input        |         [Overlay::apply]         |          [Ring::apply]          |
 //! |:------------------:|:--------------------------------:|:-------------------------------:|
-//! | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/input.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/overlay/intersex.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/ring/transgender.webp) |
+//! | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/input.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/out/overlay/intersex.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/out/ring/transgender.webp) |
 //!
 //! # High level API
 //! Load an image with the [`image`](https://docs.rs/image) crate, and overlay [Flag::Transgender] with 40% opacity.
@@ -17,9 +16,6 @@
 //! let effect = Overlay::builder(Flag::Transgender).opacity(Opacity::new(0.4)).build();
 //! effect.apply(&mut image);
 //! ```
-
-#![no_std]
-extern crate alloc;
 
 #[macro_use]
 extern crate bon;

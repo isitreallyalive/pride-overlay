@@ -8,6 +8,7 @@ use resvg::{
     usvg::{self, Tree},
 };
 
+/// Overlay the given flag on an image.
 #[derive(Builder)]
 #[builder(const)]
 pub struct Overlay {

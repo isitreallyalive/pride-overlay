@@ -43,7 +43,7 @@ pub fn generate_special_flag_constants(
     colours: &[Colour],
     colour_const: &syn::Ident,
 ) -> TokenStream {
-    let file_path = format!("../flags/{}", path);
+    let file_path = format!("../../flags/{}", path);
     let data_const = create_data_const_name(name);
     let colour_tokens = generate_colour_tokens(colours);
 

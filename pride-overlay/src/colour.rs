@@ -1,6 +1,6 @@
 use core::fmt;
 
-/// Represents a colour in RGB format.
+/// Represents a colour in RGB format with a proportion.
 #[derive(Builder, PartialEq, Eq)]
 #[builder(const)]
 pub struct Colour {
@@ -10,6 +10,7 @@ pub struct Colour {
     pub g: u8,
     #[builder(start_fn)]
     pub b: u8,
+    /// The proportion of this colour in a flag.
     #[builder(default = 1)]
     pub proportion: u8,
 }

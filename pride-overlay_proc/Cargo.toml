@@ -1,0 +1,18 @@
+[package]
+name = "pride-overlay_proc"
+version = "0.0.0"
+description = "proc macros for pride-overlay"
+authors.workspace = true
+edition.workspace = true
+
+readme = "readme.md"
+license-file.workspace = true
+repository.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }

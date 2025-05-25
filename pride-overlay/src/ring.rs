@@ -1,9 +1,9 @@
 use crate::{Colour, Effect, Flag, Opacity, flags::FlagData, overlay::create_flag_overlay};
-use alloc::vec::Vec;
 use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
 
+/// Create a ring around an image using the colours of a flag.
 #[derive(Builder)]
 #[builder(const)]
 pub struct Ring {

@@ -1,0 +1,27 @@
+[package]
+name = "pride-overlay"
+version = "2.0.0"
+description = "overlay pride flags on images"
+authors.workspace = true
+edition.workspace = true
+
+keywords.workspace = true
+categories.workspace = true
+
+readme = "../readme.md"
+license-file.workspace = true
+repository.workspace = true
+
+[features]
+default = ["rayon"]
+rayon = ["image/rayon", "imageproc/rayon"]
+
+[dependencies]
+bon = { workspace = true }
+proc = { package = "pride-overlay_proc", version = "0.0.0", path = "../pride-overlay_proc" }
+image = { workspace = true }
+imageproc = { workspace = true }
+resvg = { workspace = true }
+
+[dev-dependencies]
+image = { workspace = true, features = ["webp"] }
