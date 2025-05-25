@@ -1,5 +1,5 @@
 use crate::flags::FlagData;
-use crate::{Effect, Flag, Opacity};
+use crate::{Colour, Effect, Flag, Opacity};
 use image::GenericImageView;
 use image::{ImageBuffer, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_filled_rect_mut, rect::Rect};
@@ -66,16 +66,28 @@ fn create_stripe_flag_overlay(
     alpha: u8,
 ) -> RgbaImage {
     let mut flag_image = RgbaImage::new(width, height);
-    let num_stripes = colours.len() as u32;
 
-    for (i, &crate::Colour { r, g, b }) in colours.iter().enumerate() {
-        let y_start = (i as u32 * height) / num_stripes;
-        let y_end = ((i as u32 + 1) * height) / num_stripes;
-        let stripe_height = y_end - y_start;
+    let total_proportion: f32 = colours.iter().map(|c| c.proportion as f32).sum();
+    let mut y_offset = 0.0;
 
-        let rect = Rect::at(0, y_start as i32).of_size(width, stripe_height);
-        let colour = Rgba([r, g, b, alpha]);
-        draw_filled_rect_mut(&mut flag_image, rect, colour);
+    for &Colour {
+        r,
+        g,
+        b,
+        proportion,
+    } in colours
+    {
+        let stripe_height = (proportion as f32 / total_proportion) * height as f32;
+        let y_start = y_offset as u32;
+        let y_end = (y_offset + stripe_height as f32).min(height as f32) as u32;
+
+        if y_end > y_start {
+            let rect = Rect::at(0, y_start as i32).of_size(width, y_end - y_start);
+            let colour = Rgba([r, g, b, alpha]);
+            draw_filled_rect_mut(&mut flag_image, rect, colour);
+        }
+
+        y_offset += stripe_height as f32;
     }
 
     flag_image

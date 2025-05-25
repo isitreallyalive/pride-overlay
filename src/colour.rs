@@ -1,26 +1,27 @@
 use core::fmt;
 
 /// Represents a colour in RGB format.
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Builder, PartialEq, Eq)]
+#[builder(const)]
 pub struct Colour {
+    #[builder(start_fn)]
     pub r: u8,
+    #[builder(start_fn)]
     pub g: u8,
+    #[builder(start_fn)]
     pub b: u8,
+    #[builder(default = 1)]
+    pub proportion: u8,
 }
 
 impl Colour {
-    /// Creates a new [Colour] from the given RGB values.
-    pub const fn new(r: u8, g: u8, b: u8) -> Self {
-        Colour { r, g, b }
-    }
-
     /// Creates a new [Colour] from a hexadecimal value.
-    pub const fn from_hex(hex: u32) -> Self {
-        Colour {
-            r: ((hex >> 16) & 0xFF) as u8,
-            g: ((hex >> 8) & 0xFF) as u8,
-            b: (hex & 0xFF) as u8,
-        }
+    pub const fn from_hex(hex: u32) -> ColourBuilder {
+        let r = ((hex >> 16) & 0xFF) as u8;
+        let g = ((hex >> 8) & 0xFF) as u8;
+        let b = (hex & 0xFF) as u8;
+
+        Colour::builder(r, g, b)
     }
 }
 

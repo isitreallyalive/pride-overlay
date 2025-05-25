@@ -22,6 +22,7 @@ pub struct Colour {
     pub r: u8,
     pub g: u8,
     pub b: u8,
+    pub proportion: u8,
 }
 
 impl Parse for Colour {
@@ -35,10 +36,20 @@ impl Parse for Colour {
         content.parse::<Token![,]>()?;
         let b: LitInt = content.parse()?;
 
+        // proportion is optional
+        let proportion = if content.peek(Token![:]) {
+            content.parse::<Token![:]>()?;
+            let proportion: LitInt = content.parse()?;
+            proportion.base10_parse()?
+        } else {
+            1
+        };
+
         Ok(Colour {
             r: r.base10_parse()?,
             g: g.base10_parse()?,
             b: b.base10_parse()?,
+            proportion,
         })
     }
 }

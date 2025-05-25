@@ -9,7 +9,7 @@ use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, po
 pub struct Ring {
     #[builder(start_fn)]
     flag: Flag,
-    #[builder(default = Opacity::HALF)]
+    #[builder(default = Opacity::OPAQUE)]
     opacity: Opacity,
     #[builder(default = 12)]
     thickness: u32,

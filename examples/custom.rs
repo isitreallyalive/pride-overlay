@@ -3,12 +3,12 @@ use pride_overlay::prelude::*;
 
 /// https://catppuccin.com/palette
 const CATPPUCCIN: &[Colour] = &[
-    Colour::from_hex(0xED8796), // red
-    Colour::from_hex(0xF5A97F), // peach
-    Colour::from_hex(0xEED49F), // yellow
-    Colour::from_hex(0xA6DA95), // green
-    Colour::from_hex(0x7DC4E4), // sapphire
-    Colour::from_hex(0xC6A0F6), // lavender
+    Colour::from_hex(0xED8796).build(), // red
+    Colour::from_hex(0xF5A97F).build(), // peach
+    Colour::from_hex(0xEED49F).build(), // yellow
+    Colour::from_hex(0xA6DA95).build(), // green
+    Colour::from_hex(0x7DC4E4).build(), // sapphire
+    Colour::from_hex(0xC6A0F6).build(), // lavender
 ];
 
 // effects can be constant!

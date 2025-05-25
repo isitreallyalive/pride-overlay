@@ -73,10 +73,14 @@ pub fn generate_color_flag_constants(colours: &[Colour], colour_const: &syn::Ide
 /// Converts color definitions to token streams.
 pub fn generate_colour_tokens(colours: &[Colour]) -> impl Iterator<Item = TokenStream> + '_ {
     colours.iter().map(|c| {
-        let r = c.r;
-        let g = c.g;
-        let b = c.b;
-        quote! { crate::Colour::new(#r, #g, #b) }
+        let Colour {
+            r,
+            g,
+            b,
+            proportion,
+        } = c;
+
+        quote! { crate::Colour::builder(#r, #g, #b).proportion(#proportion).build() }
     })
 }
 
