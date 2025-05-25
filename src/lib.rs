@@ -5,10 +5,14 @@ pub use flags::Flag;
 pub use opacity::Opacity;
 
 use flags::FlagData;
-use image::{DynamicImage, GenericImageView, Rgba, RgbaImage, imageops::overlay};
+use image::{DynamicImage, GenericImageView, ImageBuffer, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{
     drawing::{draw_filled_circle_mut, draw_filled_rect_mut},
     rect::Rect,
+};
+use resvg::{
+    tiny_skia::{Pixmap, Transform},
+    usvg::{self, Tree},
 };
 
 mod colour;
@@ -27,17 +31,30 @@ fn create_flag_overlay(flag: &Flag, width: u32, height: u32, opacity: Opacity) -
 
 /// Creates an overlay from special flag image data
 fn create_special_flag_overlay(data: &[u8], width: u32, height: u32, alpha: u8) -> RgbaImage {
-    let mut flag_image = image::load_from_memory(data)
-        .expect("Failed to load flag image data")
-        .resize_to_fill(width, height, image::imageops::FilterType::Nearest)
-        .to_rgba8();
+    let tree = Tree::from_data(data, &usvg::Options::default()).unwrap();
+    let mut pixmap = Pixmap::new(width, height).unwrap();
 
-    // Apply opacity to all pixels
-    flag_image.pixels_mut().for_each(|pixel| {
+    // calculate scale to fit the image
+    let svg_size = tree.size();
+    let scale_x = width as f32 / svg_size.width();
+    let scale_y = height as f32 / svg_size.height();
+    let scale = scale_x.max(scale_y); // Use max to fill the area
+    let transform = Transform::from_scale(scale, scale).post_translate(
+        (width as f32 - svg_size.width() * scale) / 2.0,
+        (height as f32 - svg_size.height() * scale) / 2.0,
+    );
+
+    resvg::render(&tree, transform, &mut pixmap.as_mut());
+
+    // convert svg to image crate
+    let mut flag: RgbaImage = ImageBuffer::from_raw(width, height, pixmap.data().to_vec()).unwrap();
+
+    // apply opacity
+    flag.pixels_mut().for_each(|pixel| {
         pixel[3] = alpha;
     });
 
-    flag_image
+    flag
 }
 
 /// Creates a horizontal stripe flag overlay from colors
@@ -76,7 +93,7 @@ fn extract_flag_colours(flag_data: FlagData) -> &'static [Colour] {
 impl Flag {
     /// Overlays the flag onto the given image. The image is modified in place.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `image` - The target image to overlay the flag onto
     /// * `opacity` - Controls the transparency of the flag overlay. Uses 50% if [None].
     pub fn overlay(&self, image: &mut DynamicImage, opacity: Option<Opacity>) {
@@ -89,12 +106,12 @@ impl Flag {
 
     /// Draws a ring around the image using the flag's colours. The image is modified in place.
     ///
-    /// # Arguments
+    /// ### Arguments
     /// * `image` - The target image to draw the ring on
     /// * `opacity` - Controls the transparency of the ring. Uses 100% if [None].
     /// * `thickness` - Ring thickness (1-10, multiplied by 8). Uses 12 pixels if [None].
     ///
-    /// # Ring Calculation
+    /// ### Ring Calculation
     /// - Offset = min(thickness, 10) * 8 (capped at 80 pixels) or 12 (default)
     /// - Inner radius = (image_width / 2) - offset
     pub fn ring(&self, image: &mut DynamicImage, opacity: Option<Opacity>, thickness: Option<u32>) {
