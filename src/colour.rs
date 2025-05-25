@@ -1,7 +1,7 @@
 use core::fmt;
 
 /// Represents a colour in RGB format.
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Colour {
     pub r: u8,
     pub g: u8,

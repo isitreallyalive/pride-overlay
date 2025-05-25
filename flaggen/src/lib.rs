@@ -1,98 +1,32 @@
-// todo: refactor and make dry
-// this code sucks lmao
-
-use parse::{Definitions, FlagDefinition};
+use codegen::*;
+use parse::Definitions;
 use proc_macro::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 use syn::parse_macro_input;
 
+mod codegen;
 mod parse;
 
+/// Generates Flag enum and associated implementation from flag definitions.
 #[proc_macro]
 pub fn generate_flags(input: TokenStream) -> TokenStream {
     let Definitions { flags } = parse_macro_input!(input as Definitions);
 
-    // generate Flag enum variants
-    let flag_variants = flags.iter().map(|flag| {
-        let name = &flag.name;
-        quote! { #name }
-    });
-
-    let flag_consts = flags.iter().map(|flag| {
-        let name = &flag.name;
-        let colour_const = format_ident!("{}_COLOURS", name.to_string().to_uppercase());
-
-        let process_colours = |colours: &[parse::Colour]| {
-            colours
-                .iter()
-                .map(|c| {
-                    let r = c.r;
-                    let g = c.g;
-                    let b = c.b;
-                    quote! { crate::Colour::new(#r, #g, #b) }
-                })
-                .collect::<Vec<_>>()
-        };
-
-        match &flag.definition {
-            FlagDefinition::Special(path, colours) => {
-                let path = format!("../flags/{path}");
-                let data_const = format_ident!("{}_DATA", name.to_string().to_uppercase());
-                let colours = process_colours(colours);
-
-                quote! {
-                    const #data_const: &'static [u8] = include_bytes!(#path);
-                    const #colour_const: &'static [crate::Colour] = &[
-                        #(#colours),*
-                    ];
-                }
-            }
-            FlagDefinition::Colors(colours) => {
-                let colours = process_colours(colours);
-
-                quote! {
-                    const #colour_const: &'static [crate::Colour] = &[
-                        #(#colours),*
-                    ];
-                }
-            }
-        }
-    });
-
-    let flag_data_matches = flags.iter().map(|flag| {
-        let name = &flag.name;
-        let colour_const = format_ident!("{}_COLOURS", name.to_string().to_uppercase());
-
-        match &flag.definition {
-            FlagDefinition::Special(_, _) => {
-                let data_const = format_ident!("{}_DATA", name.to_string().to_uppercase());
-                quote! {
-                    Flag::#name => FlagData::Special(#data_const, #colour_const)
-                }
-            }
-            FlagDefinition::Colors(_) => {
-                quote! {
-                    Flag::#name => FlagData::Colours(#colour_const)
-                }
-            }
-        }
-    });
-
-    let flag_name_matches = flags.iter().map(|flag| {
-        let name = &flag.name;
-        let name_str = name.to_string();
-        quote! {
-            Flag::#name => #name_str
-        }
-    });
+    let flag_variants = generate_flag_variants(&flags);
+    let flag_constants = generate_flag_constants(&flags);
+    let flag_data_matches = generate_flag_data_matches(&flags);
+    let flag_name_matches = generate_flag_name_matches(&flags);
 
     let generated = quote! {
+        /// Represents different pride flags that can be used as overlays or rings.
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         pub enum Flag {
             #(#flag_variants),*,
+            /// A custom flag with user-provided colors.
             Custom(&'static [crate::Colour]),
         }
 
-        #(#flag_consts)*
+        #(#flag_constants)*
 
         impl Flag {
             /// Returns the data associated with the flag.
@@ -103,6 +37,7 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
                 }
             }
 
+            /// Returns the human-readable name of the flag.
             pub const fn name(&self) -> &'static str {
                 match self {
                     #(#flag_name_matches),*,

@@ -10,3 +10,7 @@
 > overlay pride flags on images
 
 [documentation](https://docs.rs/pride-overlay)
+
+### implementation details
+
+where possible, flags are stored as an array of RGB tuples
