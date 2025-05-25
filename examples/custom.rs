@@ -1,5 +1,5 @@
 use image::ImageResult;
-use pride_overlay::{Colour, Flag};
+use pride_overlay::prelude::*;
 
 /// https://catppuccin.com/palette
 const CATPPUCCIN: &[Colour] = &[
@@ -11,9 +11,12 @@ const CATPPUCCIN: &[Colour] = &[
     Colour::from_hex(0xC6A0F6), // lavender
 ];
 
+// effects can be constant!
+const EFFECT: Overlay = Overlay::builder(Flag::Custom(CATPPUCCIN)).build();
+
 fn main() -> ImageResult<()> {
     let mut image = image::open("examples/input.webp")?;
-    Flag::Custom(CATPPUCCIN).overlay(&mut image);
+    EFFECT.apply(&mut image);
     image.save("examples/out/custom.webp")?;
     Ok(())
 }

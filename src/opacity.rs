@@ -42,12 +42,6 @@ impl Opacity {
     }
 }
 
-impl Default for Opacity {
-    fn default() -> Self {
-        Self::HALF
-    }
-}
-
 impl fmt::Display for Opacity {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}%", self.get())

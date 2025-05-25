@@ -1,23 +1,35 @@
-use crate::{Colour, Flag, Opacity, flags::FlagData, overlay::create_flag_overlay};
+use crate::{Colour, Effect, Flag, Opacity, flags::FlagData, overlay::create_flag_overlay};
 use alloc::vec::Vec;
 use core::f32::consts::PI;
-use image::{DynamicImage, GenericImageView, Rgba, RgbaImage, imageops::overlay};
+use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
 
-/// Apply a ring around the image using the flag's colours.
-pub fn ring(flag: &Flag, image: &mut DynamicImage, opacity: Opacity, thickness: Option<u32>) {
-    let (width, height) = image.dimensions();
+#[derive(Builder)]
+#[builder(const)]
+pub struct Ring {
+    #[builder(start_fn)]
+    flag: Flag,
+    #[builder(default = Opacity::HALF)]
+    opacity: Opacity,
+    #[builder(default = 12)]
+    thickness: u32,
+}
 
-    let colours = extract_flag_colours(flag.data());
-    let ring_flag = Flag::Custom(colours);
-    let mut ring_overlay = create_flag_overlay(&ring_flag, width, height, opacity);
+impl Effect for Ring {
+    fn apply(&self, image: &mut image::DynamicImage) {
+        let (width, height) = image.dimensions();
 
-    let center = ((width / 2) as i32, (height / 2) as i32);
-    let offset = calculate_ring_offset(thickness);
-    let inner_radius = (width / 2).saturating_sub(offset) as i32;
+        let colours = extract_flag_colours(self.flag.data());
+        let ring_flag = Flag::Custom(colours);
+        let mut ring_overlay = create_flag_overlay(ring_flag, width, height, self.opacity);
 
-    draw_smooth_circle(&mut ring_overlay, center, inner_radius, Rgba([0, 0, 0, 0]));
-    overlay(image, &ring_overlay, 0, 0);
+        let center = ((width / 2) as i32, (height / 2) as i32);
+        let offset = self.thickness.min(10) * 8;
+        let inner_radius = (width / 2).saturating_sub(offset) as i32;
+
+        draw_smooth_circle(&mut ring_overlay, center, inner_radius, Rgba([0, 0, 0, 0]));
+        overlay(image, &ring_overlay, 0, 0);
+    }
 }
 
 /// Extracts the flag colours from the given [FlagData].
@@ -25,17 +37,6 @@ fn extract_flag_colours(flag_data: FlagData) -> &'static [Colour] {
     match flag_data {
         FlagData::Special(_, colours) | FlagData::Colours(colours) => colours,
     }
-}
-
-/// Calculates the offset for the ring based on the thickness.
-fn calculate_ring_offset(thickness: Option<u32>) -> u32 {
-    const MAX_THICKNESS: u32 = 10;
-    const THICKNESS_MULTIPLIER: u32 = 8;
-    const DEFAULT_OFFSET: u32 = 12;
-
-    thickness
-        .map(|t| t.min(MAX_THICKNESS) * THICKNESS_MULTIPLIER)
-        .unwrap_or(DEFAULT_OFFSET)
 }
 
 /// Draws a smooth circle on the image using anti-aliasing.

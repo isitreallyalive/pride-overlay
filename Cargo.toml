@@ -35,6 +35,7 @@ tiff = ["image/tiff"]
 webp = ["image/webp"]
 
 [dependencies]
+bon = "3.6.3"
 flaggen = { version = "0.0.0", path = "flaggen" }
 image = { version = "0.25.6", default-features = false }
 imageproc = { version = "0.25.0", default-features = false }

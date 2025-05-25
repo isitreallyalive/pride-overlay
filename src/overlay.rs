@@ -1,21 +1,32 @@
 use crate::flags::FlagData;
-use crate::{Flag, Opacity};
+use crate::{Effect, Flag, Opacity};
 use image::GenericImageView;
-use image::{DynamicImage, ImageBuffer, Rgba, RgbaImage, imageops::overlay};
+use image::{ImageBuffer, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_filled_rect_mut, rect::Rect};
 use resvg::{
     tiny_skia::{Pixmap, Transform},
     usvg::{self, Tree},
 };
 
-pub fn apply(flag: &Flag, image: &mut DynamicImage, opacity: Opacity) {
-    let (width, height) = image.dimensions();
-    let flag_overlay = create_flag_overlay(flag, width, height, opacity);
-    overlay(image, &flag_overlay, 0, 0);
+#[derive(Builder)]
+#[builder(const)]
+pub struct Overlay {
+    #[builder(start_fn)]
+    flag: Flag,
+    #[builder(default = Opacity::HALF)]
+    opacity: Opacity,
+}
+
+impl Effect for Overlay {
+    fn apply(&self, image: &mut image::DynamicImage) {
+        let (width, height) = image.dimensions();
+        let flag_overlay = create_flag_overlay(self.flag, width, height, self.opacity);
+        overlay(image, &flag_overlay, 0, 0);
+    }
 }
 
 pub(crate) fn create_flag_overlay(
-    flag: &Flag,
+    flag: Flag,
     width: u32,
     height: u32,
     opacity: Opacity,
