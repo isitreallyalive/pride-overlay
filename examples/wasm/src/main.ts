@@ -1,3 +1,4 @@
+import { Overlay } from "pride-overlay";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>

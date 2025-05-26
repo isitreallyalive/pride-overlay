@@ -760,6 +760,7 @@ dependencies = [
  "imageproc",
  "pride-overlay_proc",
  "resvg",
+ "wasm-bindgen",
 ]
 
 [[package]]

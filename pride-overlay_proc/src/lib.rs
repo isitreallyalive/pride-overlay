@@ -13,5 +13,5 @@ pub fn generate_flags(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(Effect)]
 pub fn derive_effect(input: TokenStream) -> TokenStream {
     let ast = syn::parse(input).unwrap();
-    effect::impl_(&ast)
+    effect::impl_(&ast).into()
 }

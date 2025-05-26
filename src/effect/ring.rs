@@ -4,6 +4,9 @@ use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
 
+#[cfg(wasm)]
+use wasm_bindgen::prelude::*;
+
 /// Create a ring around an image using the colours of a [Flag].
 #[derive(Builder, proc::Effect)]
 #[builder(const, start_fn(vis = "pub(crate)"))]

@@ -7,6 +7,9 @@ use resvg::{
     usvg::{self, Tree},
 };
 
+#[cfg(wasm)]
+use wasm_bindgen::prelude::*;
+
 /// Overlay the given flag on an image.
 #[derive(Builder, proc::Effect)]
 #[builder(const, start_fn(vis = "pub(crate)"))]

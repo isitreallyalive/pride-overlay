@@ -8,9 +8,12 @@ edition.workspace = true
 keywords.workspace = true
 categories.workspace = true
 
-readme = "../readme.md"
+readme = "readme.md"
 license-file.workspace = true
 repository.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [features]
 default = ["rayon"]
@@ -22,6 +25,9 @@ proc = { workspace = true }
 image = { workspace = true }
 imageproc = { workspace = true }
 resvg = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2.100"
 
 [build-dependencies]
 cfg_aliases = { workspace = true }
