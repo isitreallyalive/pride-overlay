@@ -23,6 +23,9 @@ image = { workspace = true }
 imageproc = { workspace = true }
 resvg = { workspace = true }
 
+[build-dependencies]
+cfg_aliases = { workspace = true }
+
 [dev-dependencies]
 image = { workspace = true, features = ["webp"] }
 
@@ -54,3 +57,5 @@ proc-macro2 = "1.0.95"
 quote = "1.0.40"
 resvg = { version = "0.45.1", default-features = false }
 syn = "2.0.101"
+cfg_aliases = "0.2.1"
+
