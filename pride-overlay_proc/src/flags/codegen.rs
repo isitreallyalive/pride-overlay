@@ -71,7 +71,7 @@ fn const_(
     let svg = scale
         .as_ref()
         .map(|scale| {
-            let file = format!("../../flags/{}.svg", name.to_string().to_lowercase());
+            let file = format!("../flags/{}.svg", name.to_string().to_lowercase());
 
             quote! {
                 Some((include_bytes!(#file), ScaleMode::#scale))
@@ -99,10 +99,10 @@ fn variant(Flag { name, scale, .. }: &Flag, doc: bool) -> TokenStream {
                 r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags{path}/{str_name}.svg" alt="{str_name} flag" height="125px">"#
             ),
             format!(
-                r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/out/overlay/{str_name}.webp" alt="{str_name} overlay" height="125px">"#
+                r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/overlay/{str_name}.webp" alt="{str_name} overlay" height="125px">"#
             ),
             format!(
-                r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/pride-overlay/examples/out/ring/{str_name}.webp" alt="{str_name} ring" height="125px">"#
+                r#"<img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/ring/{str_name}.webp" alt="{str_name} ring" height="125px">"#
             ),
         );
 

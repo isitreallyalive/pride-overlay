@@ -23,9 +23,9 @@ fn main() -> ImageResult<()> {
     #[allow(unused_variables)]
     let effect = make_effect();
 
-    let mut image = image::open("pride-overlay/examples/input.webp")?;
+    let mut image = image::open("examples/input.webp")?;
     EFFECT.apply(&mut image);
-    image.save("pride-overlay/examples/out/custom.webp")?;
+    image.save("examples/out/custom.webp")?;
 
     Ok(())
 }
