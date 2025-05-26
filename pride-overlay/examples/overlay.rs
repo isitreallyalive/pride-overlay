@@ -4,7 +4,7 @@ use pride_overlay::prelude::*;
 fn main() -> ImageResult<()> {
     for flag in PrideFlag::all().to_owned() {
         let mut image = image::open("pride-overlay/examples/input.webp")?;
-        let effect = Overlay::builder(flag).build();
+        let effect = Overlay::new(flag).build();
         effect.apply(&mut image);
 
         image.save(format!(

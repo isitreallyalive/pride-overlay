@@ -11,14 +11,21 @@ const COLOURS: &[Colour] = &[
     Colour::from_hex(0xC6A0F6).build(),               // lavender
 ];
 
-const CUSTOM_FLAG: FlagData = FlagData::builder(COLOURS).build();
+const fn make_effect() -> Ring<'static> {
+    let flag = Flag::builder(COLOURS).build();
+    Ring::custom(flag).build()
+}
+
+const EFFECT: Ring = make_effect();
 
 fn main() -> ImageResult<()> {
-    // todo: FIX
-    let colours = COLOURS.iter().map(|c| c.to_owned()).collect::<Vec<_>>();
-    let custom_flag =
-    let effect = Ring::builder(custom_flag);
+    //! effects can be created at compile or runtime
+    #[allow(unused_variables)]
+    let effect = make_effect();
 
-    println!("{:?}",);
+    let mut image = image::open("pride-overlay/examples/input.webp")?;
+    EFFECT.apply(&mut image);
+    image.save("pride-overlay/examples/out/custom.webp")?;
+
     Ok(())
 }

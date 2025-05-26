@@ -1,6 +1,6 @@
 [package]
 name = "pride-overlay_proc"
-version = "0.0.0"
+version.workspace = true
 description = "proc macros for pride-overlay"
 authors.workspace = true
 edition.workspace = true

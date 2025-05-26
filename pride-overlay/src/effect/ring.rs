@@ -1,25 +1,26 @@
-use crate::{Effect, Opacity, PrideFlag, flags::FlagData, overlay::create_flag_overlay};
+use super::create_flag_overlay;
+use crate::{Effect, Opacity, flags::Flag};
 use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
 
-/// Create a ring around an image using the colours of a flag.
-#[derive(Builder)]
-#[builder(const)]
+/// Create a ring around an image using the colours of a [Flag].
+#[derive(Builder, proc::Effect)]
+#[builder(const, start_fn(vis = "pub(crate)"))]
 pub struct Ring<'a> {
     #[builder(start_fn)]
-    flag: PrideFlag<'a>,
+    flag: Flag<'a>,
     #[builder(default = Opacity::OPAQUE)]
     opacity: Opacity,
     #[builder(default = 12)]
     thickness: u32,
 }
 
-impl<'a> Effect for Ring<'a> {
+impl Effect for Ring<'_> {
     fn apply(&self, image: &mut image::DynamicImage) {
         let (width, height) = image.dimensions();
 
-        let ring_flag = PrideFlag::Custom(FlagData::builder(self.flag.data().colours).build());
+        let ring_flag = Flag::builder(self.flag.colours).build();
         let mut ring_overlay = create_flag_overlay(&ring_flag, width, height, &self.opacity);
 
         let center = ((width / 2) as i32, (height / 2) as i32);

@@ -21,27 +21,17 @@
 extern crate bon;
 
 mod colour;
+mod effect;
 mod flags;
+
 mod opacity;
-
-mod overlay;
-mod ring;
-
 pub mod prelude {
     pub use crate::{
-        Effect,
         colour::Colour,
-        flags::{FlagData, PrideFlag, ScaleMode},
+        effect::{Effect, Overlay, Ring},
+        flags::{Flag, PrideFlag, ScaleMode},
         opacity::Opacity,
-        overlay::Overlay,
-        ring::Ring,
     };
 }
 #[doc(inline)]
 pub use prelude::*;
-
-/// An effect that can be applied to an image.
-pub trait Effect {
-    /// Applies the effect to the given image.
-    fn apply(&self, image: &mut image::DynamicImage);
-}

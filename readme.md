@@ -23,8 +23,8 @@
 | bisexual | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/bisexual.svg" height="125" alt="bisexual flag"> |
 | intersex | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/intersex.svg" height="125" alt="intersex flag"> |
 | lesbian | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/lesbian.svg" height="125" alt="lesbian flag"> |
-| nonbinary | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/nonbinary.svg" height="125" alt="nonbinary flag"|
-| pansexual | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/pansexual.svg" height="125" alt="pansexual flag"|
+| nonbinary | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/nonbinary.svg" height="125" alt="nonbinary flag"> |
+| pansexual | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/pansexual.svg" height="125" alt="pansexual flag"> |
 | polyamory | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/polyamory.svg" height="125" alt="polyamory flag"> |
 | rainbow | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/rainbow.svg" height="125" alt="rainbow flag"> |
 | transgender | <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/readme/transgender.svg" height="125" alt="transgender flag"> |

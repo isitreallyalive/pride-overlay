@@ -1,5 +1,4 @@
-use crate::flags::Svg;
-use crate::{Colour, Effect, Opacity, PrideFlag, ScaleMode};
+use crate::{Colour, Effect, Flag, Opacity, ScaleMode, flags::Svg};
 use image::GenericImageView;
 use image::{ImageBuffer, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_filled_rect_mut, rect::Rect};
@@ -9,16 +8,16 @@ use resvg::{
 };
 
 /// Overlay the given flag on an image.
-#[derive(Builder)]
-#[builder(const)]
+#[derive(Builder, proc::Effect)]
+#[builder(const, start_fn(vis = "pub(crate)"))]
 pub struct Overlay<'a> {
     #[builder(start_fn)]
-    flag: PrideFlag<'a>,
+    flag: Flag<'a>,
     #[builder(default = Opacity::HALF)]
     opacity: Opacity,
 }
 
-impl<'a> Effect for Overlay<'a> {
+impl Effect for Overlay<'_> {
     fn apply(&self, image: &mut image::DynamicImage) {
         let (width, height) = image.dimensions();
         let flag_overlay = create_flag_overlay(&self.flag, width, height, &self.opacity);
@@ -27,18 +26,17 @@ impl<'a> Effect for Overlay<'a> {
 }
 
 pub(crate) fn create_flag_overlay(
-    flag: &PrideFlag<'_>,
+    flag: &Flag<'_>,
     width: u32,
     height: u32,
     opacity: &Opacity,
 ) -> RgbaImage {
     let alpha = opacity.get_raw();
-    let data = flag.data();
 
-    if let Some(svg) = &data.svg {
+    if let Some(svg) = &flag.svg {
         create_svg_flag_overlay(svg, width, height, alpha)
     } else {
-        create_stripe_flag_overlay(data.colours, width, height, alpha)
+        create_stripe_flag_overlay(flag.colours, width, height, alpha)
     }
 }
 

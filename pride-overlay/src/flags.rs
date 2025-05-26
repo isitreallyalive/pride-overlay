@@ -1,6 +1,6 @@
 use crate::Colour;
 
-/// The flag's scaling mode
+/// How to scale the SVG when rendering.
 #[derive(Clone, Copy, Default)]
 pub enum ScaleMode {
     /// Maintain aspect ratio, may crop parts of the flag
@@ -22,7 +22,7 @@ pub struct Svg {
 /// If `svg` is [Some], it will be used during [Overlay].
 #[derive(Builder, Clone, Copy)]
 #[builder(const)]
-pub struct FlagData<'a> {
+pub struct Flag<'a> {
     #[builder(start_fn)]
     pub colours: &'a [Colour],
     #[builder(with = |data: &'static [u8], scale: ScaleMode| Svg { data, scale })]

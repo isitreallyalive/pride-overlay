@@ -1,4 +1,4 @@
-use crate::parse::{Colour, Flag, Flags};
+use super::parse::{Colour, Flag, Flags};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::Ident;
@@ -15,14 +15,13 @@ pub fn generate(Flags(flags): Flags) -> TokenStream {
 
         /// A pride flag.
         #[derive(Clone, Copy)]
-        pub enum PrideFlag<'a> {
-            #(#doc_variants),*,
-            Custom(FlagData<'a>)
+        pub enum PrideFlag {
+            #(#doc_variants),*
         }
 
-        impl<'a> PrideFlag<'a> {
+        impl PrideFlag {
             /// Enumerates all built-in pride flags.
-            pub const fn all() -> &'static [PrideFlag<'a>] {
+            pub const fn all() -> &'static [PrideFlag] {
                 &[
                     #(
                         PrideFlag::#variants,
@@ -36,15 +35,13 @@ pub fn generate(Flags(flags): Flags) -> TokenStream {
                     #(
                         PrideFlag::#variants => stringify!(#variants),
                     )*
-                    PrideFlag::Custom(_) => "Custom"
                 }
             }
 
             /// Internal flag data.
-            pub(crate) const fn data(&self) -> &FlagData<'_> {
+            pub(crate) const fn data(&self) -> Flag<'static> {
                 match self {
                     #(#data_arms),*,
-                    PrideFlag::Custom(data) => &data,
                 }
             }
         }
@@ -83,7 +80,7 @@ fn const_(
         .unwrap_or(quote! { None });
 
     quote! {
-        const #name: FlagData<'static> = FlagData::builder(&[#(#colours),*])
+        const #name: Flag<'static> = Flag::builder(&[#(#colours),*])
             .maybe_svg(#svg)
             .build();
     }
@@ -125,6 +122,6 @@ fn data_arm(Flag { name, .. }: &Flag) -> TokenStream {
     let const_ = upper_ident(name);
 
     quote! {
-        PrideFlag::#name => &#const_
+        PrideFlag::#name => #const_
     }
 }

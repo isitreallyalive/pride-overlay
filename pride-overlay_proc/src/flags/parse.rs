@@ -4,7 +4,7 @@ use syn::{
     parse::{Parse, ParseStream},
 };
 
-/// Parses the input token stream into [Definitions].
+/// Parses the input token stream into [Flags].
 pub fn parse(input: TokenStream) -> Result<Flags> {
     syn::parse(input)
 }
