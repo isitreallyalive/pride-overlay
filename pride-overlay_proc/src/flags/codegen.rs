@@ -15,6 +15,7 @@ pub fn generate(Flags(flags): Flags) -> TokenStream {
 
         /// A pride flag.
         #[derive(Clone, Copy)]
+        #[cfg_attr(wasm, wasm_bindgen)]
         pub enum PrideFlag {
             #(#doc_variants),*
         }
@@ -107,7 +108,7 @@ fn variant(Flag { name, scale, .. }: &Flag, doc: bool) -> TokenStream {
         );
 
         quote! {
-            #[doc = #doc]
+            #[cfg_attr(not(wasm), doc = #doc)]
             #name
         }
     } else {

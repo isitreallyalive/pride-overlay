@@ -1,5 +1,8 @@
 use crate::Colour;
 
+#[cfg(wasm)]
+use wasm_bindgen::prelude::*;
+
 /// How to scale the SVG when rendering.
 #[derive(Clone, Copy, Default)]
 pub enum ScaleMode {

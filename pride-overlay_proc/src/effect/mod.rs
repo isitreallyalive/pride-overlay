@@ -1,10 +1,19 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use syn::DeriveInput;
+use syn::{Data, DeriveInput};
+
+mod wasm;
 
 pub fn impl_(input: &DeriveInput) -> TokenStream {
     let builder = builder(input);
-    let wasm = wasm(input);
+    let wasm = wasm::generate(input);
+
+    // reject any effect that is not a struct
+    if !matches!(input.data, Data::Struct(_)) {
+        return quote! {
+            compile_error!("Effects must be structs.");
+        };
+    }
 
     quote! {
         #builder
@@ -35,15 +44,5 @@ fn builder(DeriveInput { ident: effect, .. }: &DeriveInput) -> TokenStream {
                 Self::builder(flag)
             }
         }
-    }
-}
-
-fn wasm(DeriveInput { ident: effect, .. }: &DeriveInput) -> TokenStream {
-    let wasm_effect = format_ident!("{}Wasm", effect);
-
-    quote! {
-        #[cfg(wasm)]
-        #[wasm_bindgen(js_name = #effect)]
-        struct #wasm_effect {}
     }
 }

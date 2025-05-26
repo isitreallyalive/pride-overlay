@@ -1,4 +1,5 @@
-import { Overlay } from "pride-overlay";
+import { PrideFlag, Overlay } from "pride-overlay";
+
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
