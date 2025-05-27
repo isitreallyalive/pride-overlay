@@ -72,7 +72,6 @@ fn translate_type(ty: &Type) -> Type {
     if let Type::Path(TypePath { path, .. }) = ty {
         if let Some(PathSegment { ident: name, .. }) = path.segments.last() {
             match name.to_string().as_str() {
-                "Opacity" => return parse_quote!(f32),
                 "Flag" => return parse_quote!(crate::PrideFlag),
                 _ => {}
             }

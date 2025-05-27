@@ -1,5 +1,5 @@
 import "./app.css";
-import { PrideFlag, Overlay, Ring } from "pride-overlay";
+import { PrideFlag, Overlay, Ring, Opacity } from "pride-overlay";
 import { canvas, drawImage } from "./canvas";
 
 // current image data
@@ -9,8 +9,8 @@ let currentHeight = 0;
 
 // instantiate the effects with default values (using same flag for both)
 let currentFlag = PrideFlag.Agender
-let overlay = new Overlay(currentFlag, 0.4);
-let ring = new Ring(currentFlag, 1, 24);
+let overlay = new Overlay(currentFlag, new Opacity(0.4));
+let ring = new Ring(currentFlag, new Opacity(1), 24);
 
 // function to get PrideFlag enum value from string
 function getPrideFlagFromString(flagName: string): PrideFlag {
@@ -47,8 +47,8 @@ document
 
     // update current flag and recreate both effects
     currentFlag = flagEnum;
-    overlay = new Overlay(currentFlag, 0.4);
-    ring = new Ring(currentFlag, 1, 24);
+    overlay = new Overlay(currentFlag, new Opacity(0.4));
+    ring = new Ring(currentFlag, new Opacity(1), 24);
     renderEffects();
   });
 
@@ -74,10 +74,7 @@ document
       currentWidth = width;
       currentHeight = height;
 
-      // original
       drawImage(canvas.original, width, height, currentPixels);
-
-      // render effects
       renderEffects();
     } catch (error) {
       console.error("Error processing image:", error);
