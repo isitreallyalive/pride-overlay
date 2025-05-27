@@ -2,12 +2,30 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <title>pride-overlay</title>
   </head>
   <body>
-    <div id="app"></div>
+    <h1 class="pt-8 font-mono text-3xl">pride-overlay</h1>
+
+    <div class="mb-6">
+      <input 
+        type="file" 
+        id="upload"
+        accept="image/*" 
+        class="block hover:file:bg-gray-800 file:bg-black file:mr-4 file:px-4 file:py-2 file:border hover:file:border-black file:border-black file:rounded focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 w-full file:font-medium text-gray-700 file:text-white text-sm file:text-sm cursor-pointer"
+      />
+    </div>
+
+    <div class="gap-x-12 grid grid-cols-3 *:text-center">
+      <h2>original</h2>
+      <h2>overlay</h2>
+      <h2>ring</h2>
+      <canvas id="original"></canvas>
+      <canvas id="overlay"></canvas>
+      <canvas id="ring"></canvas>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

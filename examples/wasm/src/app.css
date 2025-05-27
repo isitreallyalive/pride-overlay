@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+body {
+  @apply flex flex-col items-center gap-4 select-none;
+}
+
+h1, h2 {
+  @apply font-mono font-bold;
+}
+
+h2 {
+  @apply text-2xl;
+}
+
+canvas {
+  @apply w-[256px] aspect-square;
+}
