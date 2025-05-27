@@ -13,5 +13,5 @@ h2 {
 }
 
 canvas {
-  @apply w-[256px] aspect-square;
+  @apply aspect-square;
 }

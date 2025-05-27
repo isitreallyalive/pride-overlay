@@ -36,3 +36,9 @@ impl Opacity {
         self.0
     }
 }
+
+impl From<f32> for Opacity {
+    fn from(value: f32) -> Self {
+        Opacity::new(value)
+    }
+}

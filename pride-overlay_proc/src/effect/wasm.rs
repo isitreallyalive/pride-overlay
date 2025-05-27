@@ -26,6 +26,7 @@ pub fn generate(
             quote! { pub #name: #translated_ty }
         },
     );
+    let initializers = s.fields.iter().map(|Field { ident: name, .. }| name);
 
     quote! {
         #[cfg(wasm)]
@@ -38,6 +39,30 @@ pub fn generate(
         #[wasm_bindgen(js_class = #effect)]
         impl #wasm_effect {
             #constructor
+
+            #[wasm_bindgen]
+            pub fn apply(&self, image: &[u8], width: u32, height: u32) -> Vec<u8> {
+                use image::{RgbaImage, DynamicImage};
+
+                // create a dynamic image
+                let mut image = {
+                    let rgba = RgbaImage::from_raw(
+                        width,
+                        height,
+                        image.to_vec()
+                    ).expect("Failed to create image from raw data");
+                    DynamicImage::ImageRgba8(rgba)
+                };
+
+                // create the effect
+                let effect = crate::#effect {
+                    #(#initializers: self.#initializers.clone().into()),*
+                };
+                effect.apply(&mut image);
+
+                // convert the image back to a vector
+                image.to_rgba8().into_vec()
+            }
         }
     }
 }

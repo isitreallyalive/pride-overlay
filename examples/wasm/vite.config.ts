@@ -5,8 +5,14 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [
-    tailwindcss(),
     wasm(),
     topLevelAwait(),
-  ]
+    tailwindcss(),
+  ],
+  worker: {
+    plugins: () => [
+      wasm(),
+      topLevelAwait()
+    ]
+  }
 });

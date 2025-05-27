@@ -32,6 +32,12 @@ pub struct Flag<'a> {
     pub svg: Option<Svg>,
 }
 
+impl From<PrideFlag> for Flag<'static> {
+    fn from(flag: PrideFlag) -> Self {
+        flag.data()
+    }
+}
+
 proc::generate_flags! {
     Agender {
         0x000000, 0xB9B9B9, 0xFFFFFF, 0xB8F483, 0xFFFFFF, 0xB9B9B9, 0x000000
