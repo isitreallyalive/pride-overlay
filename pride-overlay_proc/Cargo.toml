@@ -1,11 +1,10 @@
 [package]
 name = "pride-overlay_proc"
-version.workspace = true
 description = "proc macros for pride-overlay"
+readme = "readme.md"
+version.workspace = true
 authors.workspace = true
 edition.workspace = true
-
-readme = "readme.md"
 license-file.workspace = true
 repository.workspace = true
 

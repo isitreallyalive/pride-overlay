@@ -1,14 +1,12 @@
 [package]
 name = "pride-overlay"
-version.workspace = true
 description = "overlay pride flags on images"
+readme = "../readme.md"
+version.workspace = true
 authors.workspace = true
 edition.workspace = true
-
 keywords.workspace = true
 categories.workspace = true
-
-readme = "../readme.md"
 license-file.workspace = true
 repository.workspace = true
 
@@ -46,11 +44,11 @@ license-file = "license.md"
 repository = "https://github.com/isitreallyalive/pride-overlay"
 
 [workspace.dependencies]
-bon = "3.6.3"
-image = { version = "0.25.6", default-features = false }
+bon = "3.8.1"
+image = { version = "0.25.8", default-features = false }
 imageproc = { version = "0.25.0", default-features = false }
 proc = { package = "pride-overlay_proc", path = "pride-overlay_proc" }
-proc-macro2 = "1.0.95"
-quote = "1.0.40"
+proc-macro2 = "1.0.103"
+quote = "1.0.41"
 resvg = { version = "0.45.1", default-features = false }
-syn = "2.0.101"
+syn = "2.0.108"
