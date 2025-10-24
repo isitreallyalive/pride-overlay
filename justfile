@@ -9,3 +9,6 @@
 @doc:
     cargo doc
     miniserve target/doc
+
+@wasm:
+    cd examples/wasm && bun dev
