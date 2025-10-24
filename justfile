@@ -1,7 +1,10 @@
-@examples:
+@clean:
+    rm -rf examples/out/**/*.webp
+
+@examples: clean
     cargo r --example overlay
     cargo r --example ring
     cargo r --example custom
 
-@clean:
-    rm -rf examples/out/**/*.webp
+@doc:
+    cargo doc --open

@@ -1,54 +1,26 @@
 [package]
 name = "pride-overlay"
 description = "overlay pride flags on images"
-readme = "../readme.md"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
-keywords.workspace = true
-categories.workspace = true
-license-file.workspace = true
-repository.workspace = true
+version = "2.0.0"
+edition = "2024"
+
+authors = ["newt <hi@newty.dev>"]
+keywords = ["pride", "lgbtq", "flags", "image-processing", "graphics"]
+categories = ["graphics", "multimedia::images"]
+
+repository = "https://github.com/isitreallyalive/pride-overlay"
+readme = "readme.md"
+license-file = "license.md"
 
 [features]
 default = ["rayon"]
 rayon = ["image/rayon", "imageproc/rayon"]
 
 [dependencies]
-bon = { workspace = true }
-proc = { workspace = true }
-image = { workspace = true }
-imageproc = { workspace = true }
-resvg = { workspace = true }
-
-[dev-dependencies]
-image = { workspace = true, features = ["webp"] }
-
-# workspace
-
-[workspace]
-resolver = "3"
-members = [
-    "pride-overlay_proc"
-]
-
-[workspace.package]
-version = "2.0.0"
-edition = "2024"
-authors = ["newt <hi@newty.dev>"]
-
-keywords = ["pride", "lgbtq", "flags", "image-processing", "graphics"]
-categories = ["graphics", "multimedia::images"]
-
-license-file = "license.md"
-repository = "https://github.com/isitreallyalive/pride-overlay"
-
-[workspace.dependencies]
 bon = "3.8.1"
 image = { version = "0.25.8", default-features = false }
 imageproc = { version = "0.25.0", default-features = false }
-proc = { package = "pride-overlay_proc", path = "pride-overlay_proc" }
-proc-macro2 = "1.0.103"
-quote = "1.0.41"
 resvg = { version = "0.45.1", default-features = false }
-syn = "2.0.108"
+
+[dev-dependencies]
+image = { version = "0.25.8", features = ["webp"] }

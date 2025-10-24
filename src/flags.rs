@@ -29,58 +29,194 @@ pub struct Flag<'a> {
     pub svg: Option<Svg>,
 }
 
-proc::generate_flags! {
-    Agender {
-        0x000000, 0xB9B9B9, 0xFFFFFF, 0xB8F483, 0xFFFFFF, 0xB9B9B9, 0x000000
+const AGENDER: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0x000000).build(),
+    Colour::from_hex(0xB9B9B9).build(),
+    Colour::from_hex(0xFFFFFF).build(),
+    Colour::from_hex(0xB8F483).build(),
+    Colour::from_hex(0xFFFFFF).build(),
+    Colour::from_hex(0xB9B9B9).build(),
+    Colour::from_hex(0x000000).build(),
+])
+.build();
+
+const AROMANTIC: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0x3DA542).build(),
+    Colour::from_hex(0xA7D379).build(),
+    Colour::from_hex(0xFFFFFF).build(),
+    Colour::from_hex(0xA9A9A9).build(),
+    Colour::from_hex(0x000000).build(),
+])
+.build();
+
+const ASEXUAL: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0x000000).build(),
+    Colour::from_hex(0xA3A3A3).build(),
+    Colour::from_hex(0xFFFFFF).build(),
+    Colour::from_hex(0x800080).build(),
+])
+.build();
+
+const BISEXUAL: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0xD60270).proportion(2).build(),
+    Colour::from_hex(0x9B4F96).build(),
+    Colour::from_hex(0x0038A8).proportion(2).build(),
+])
+.build();
+
+const GENDERFLUID: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0xFF75A2).build(),
+    Colour::from_hex(0xFFFFFF).build(),
+    Colour::from_hex(0xBE18D6).build(),
+    Colour::from_hex(0x2C2C2C).build(),
+    Colour::from_hex(0x333EBD).build(),
+])
+.build();
+
+const GENDERQUEER: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0xB67FDD).build(),
+    Colour::from_hex(0xFFFFFF).build(),
+    Colour::from_hex(0x49821E).build(),
+])
+.build();
+
+const INTERSEX: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0xFFD800).build(),
+    Colour::from_hex(0x7902AA).build(),
+])
+.maybe_svg(Some((
+    include_bytes!("../flags/intersex.svg"),
+    ScaleMode::Fill,
+)))
+.build();
+
+const LESBIAN: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0xD52D00).build(),
+    Colour::from_hex(0xFF9A56).build(),
+    Colour::from_hex(0xFFFFFF).build(),
+    Colour::from_hex(0xD362A4).build(),
+    Colour::from_hex(0xA30262).build(),
+])
+.build();
+
+const NONBINARY: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0xFFF433).build(),
+    Colour::from_hex(0xFFFFFF).build(),
+    Colour::from_hex(0x9B59D0).build(),
+    Colour::from_hex(0x2D2D2D).build(),
+])
+.build();
+
+const PANSEXUAL: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0xFF218C).build(),
+    Colour::from_hex(0xFFD800).build(),
+    Colour::from_hex(0x21B1FF).build(),
+])
+.build();
+
+const POLYAMORY: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0x009FE3).build(),
+    Colour::from_hex(0xE50051).build(),
+    Colour::from_hex(0x340C46).build(),
+])
+.maybe_svg(Some((
+    include_bytes!("../flags/polyamory.svg"),
+    ScaleMode::Stretch,
+)))
+.build();
+
+const RAINBOW: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0xE50000).build(),
+    Colour::from_hex(0xFF8D00).build(),
+    Colour::from_hex(0xFFEE00).build(),
+    Colour::from_hex(0x028121).build(),
+    Colour::from_hex(0x004CFF).build(),
+    Colour::from_hex(0x770088).build(),
+])
+.build();
+
+const TRANSGENDER: Flag<'static> = Flag::builder(&[
+    Colour::from_hex(0x5BCEFA).build(),
+    Colour::from_hex(0xF5A9B8).build(),
+    Colour::from_hex(0xFFFFFF).build(),
+    Colour::from_hex(0xF5A9B8).build(),
+    Colour::from_hex(0x5BCEFA).build(),
+])
+.build();
+
+/// A pride flag.
+#[derive(Clone, Copy)]
+pub enum PrideFlag {
+    Agender,
+    Aromantic,
+    Asexual,
+    Bisexual,
+    Genderfluid,
+    Genderqueer,
+    Intersex,
+    Lesbian,
+    Nonbinary,
+    Pansexual,
+    Polyamory,
+    Rainbow,
+    Transgender,
+}
+
+impl PrideFlag {
+    /// Enumerates all built-in pride flags.
+    pub const fn all() -> &'static [PrideFlag] {
+        &[
+            PrideFlag::Agender,
+            PrideFlag::Aromantic,
+            PrideFlag::Asexual,
+            PrideFlag::Bisexual,
+            PrideFlag::Genderfluid,
+            PrideFlag::Genderqueer,
+            PrideFlag::Intersex,
+            PrideFlag::Lesbian,
+            PrideFlag::Nonbinary,
+            PrideFlag::Pansexual,
+            PrideFlag::Polyamory,
+            PrideFlag::Rainbow,
+            PrideFlag::Transgender,
+        ]
     }
 
-    Aromantic {
-        0x3DA542, 0xA7D379, 0xFFFFFF, 0xA9A9A9, 0x000000
+    /// Gets the human-readable name of a pride flag.
+    pub const fn name(&self) -> &'static str {
+        match self {
+            PrideFlag::Agender => "Agender",
+            PrideFlag::Aromantic => "Aromantic",
+            PrideFlag::Asexual => "Asexual",
+            PrideFlag::Bisexual => "Bisexual",
+            PrideFlag::Genderfluid => "Genderfluid",
+            PrideFlag::Genderqueer => "Genderqueer",
+            PrideFlag::Intersex => "Intersex",
+            PrideFlag::Lesbian => "Lesbian",
+            PrideFlag::Nonbinary => "Nonbinary",
+            PrideFlag::Pansexual => "Pansexual",
+            PrideFlag::Polyamory => "Polyamory",
+            PrideFlag::Rainbow => "Rainbow",
+            PrideFlag::Transgender => "Transgender",
+        }
     }
 
-    Asexual {
-        0x000000, 0xA3A3A3, 0xFFFFFF, 0x800080
-    }
-
-    Bisexual {
-        0xD60270:2, 0x9B4F96:1, 0x0038A8:2
-    }
-
-    Genderfluid {
-        0xFF75A2, 0xFFFFFF, 0xBE18D6, 0x2C2C2C, 0x333EBD
-    }
-
-    Genderqueer {
-        0xB67FDD, 0xFFFFFF, 0x49821E
-    }
-
-    Intersex {
-        Fill
-        0xFFD800, 0x7902AA
-    }
-
-    Lesbian {
-        0xD52D00, 0xFF9A56, 0xFFFFFF, 0xD362A4, 0xA30262
-    }
-
-    Nonbinary {
-        0xFFF433, 0xFFFFFF, 0x9B59D0, 0x2D2D2D
-    }
-
-    Pansexual {
-        0xFF218C, 0xFFD800, 0x21B1FF
-    }
-
-    Polyamory {
-        Stretch
-        0x009FE3, 0xE50051, 0x340C46
-    }
-
-    Rainbow {
-        0xE50000, 0xFF8D00, 0xFFEE00, 0x028121, 0x004CFF, 0x770088
-    }
-
-    Transgender {
-        0x5BCEFA, 0xF5A9B8, 0xFFFFFF, 0xF5A9B8, 0x5BCEFA
+    /// Internal flag data.
+    pub(crate) const fn data(&self) -> Flag<'static> {
+        match self {
+            PrideFlag::Agender => AGENDER,
+            PrideFlag::Aromantic => AROMANTIC,
+            PrideFlag::Asexual => ASEXUAL,
+            PrideFlag::Bisexual => BISEXUAL,
+            PrideFlag::Genderfluid => GENDERFLUID,
+            PrideFlag::Genderqueer => GENDERQUEER,
+            PrideFlag::Intersex => INTERSEX,
+            PrideFlag::Lesbian => LESBIAN,
+            PrideFlag::Nonbinary => NONBINARY,
+            PrideFlag::Pansexual => PANSEXUAL,
+            PrideFlag::Polyamory => POLYAMORY,
+            PrideFlag::Rainbow => RAINBOW,
+            PrideFlag::Transgender => TRANSGENDER,
+        }
     }
 }

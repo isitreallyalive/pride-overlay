@@ -53,9 +53,7 @@ fn draw_smooth_circle(image: &mut RgbaImage, center: (i32, i32), radius: i32, co
     // that approximates the circle.
     // circumference = 2 * pi * radius
     let circumference = 2.0 * PI * radius as f32;
-    let sides = (circumference / PIXELS_PER_SIDE)
-        .max(MIN_SIDES)
-        .min(MAX_SIZES) as usize;
+    let sides = (circumference / PIXELS_PER_SIDE).clamp(MIN_SIDES, MAX_SIZES) as usize;
 
     // compute the points of the polygon
     let mut points = Vec::with_capacity(sides);
