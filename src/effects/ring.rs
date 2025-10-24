@@ -1,12 +1,17 @@
-use super::create_flag_overlay;
-use crate::{Effect, Opacity, flags::Flag};
+use crate::{effects::create_flag_overlay, prelude::*};
 use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
 
-/// Create a ring around an image using the colours of a [Flag].
+/// Effect that draws a ring around an image using pride [Flag] colors.
 #[derive(Builder)]
-#[builder(const, start_fn(vis = "pub(crate)"))]
+#[builder(
+    const,
+    builder_type(doc {
+        /// Builder for the [Ring] effect.
+    }),
+    start_fn(vis = "pub(crate)", name = "_builder")
+)]
 pub struct Ring<'a> {
     #[builder(start_fn)]
     flag: Flag<'a>,
@@ -20,31 +25,26 @@ impl Effect for Ring<'_> {
     fn apply(&self, image: &mut image::DynamicImage) {
         let (width, height) = image.dimensions();
 
-        let ring_flag = Flag::builder(self.flag.colours).build();
+        let ring_flag = Flag::builder("", self.flag.colours).build();
         let mut ring_overlay = create_flag_overlay(&ring_flag, width, height, &self.opacity);
 
         let center = ((width / 2) as i32, (height / 2) as i32);
         let radius = (width / 2).saturating_sub(self.thickness) as i32;
 
-        draw_smooth_circle(&mut ring_overlay, center, radius, Rgba([0, 0, 0, 0]));
+        draw_circle(&mut ring_overlay, center, radius, Rgba([0, 0, 0, 0]));
         overlay(image, &ring_overlay, 0, 0);
     }
 }
 
-impl Ring<'static> {
-    /// Create a new [Ring] [Effect] with a builtin [PrideFlag].
-    pub const fn new(flag: crate::PrideFlag) -> RingBuilder<'static> {
-        Self::builder(flag.data())
-    }
-
+impl<'a> Ring<'a> {
     /// Create a new [Ring] [Effect] with a custom [Flag].
-    pub const fn custom(flag: crate::Flag<'static>) -> RingBuilder<'static> {
-        Self::builder(flag)
+    pub const fn builder(flag: Flag<'a>) -> RingBuilder<'a> {
+        Self::_builder(flag)
     }
 }
 
 /// Draws a smooth circle on the image using anti-aliasing.
-fn draw_smooth_circle(image: &mut RgbaImage, center: (i32, i32), radius: i32, color: Rgba<u8>) {
+fn draw_circle(image: &mut RgbaImage, center: (i32, i32), radius: i32, color: Rgba<u8>) {
     const MIN_SIDES: f32 = 32.;
     const MAX_SIZES: f32 = 256.;
     const PIXELS_PER_SIDE: f32 = 4.;

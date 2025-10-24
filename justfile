@@ -7,4 +7,5 @@
     cargo r --example custom
 
 @doc:
-    cargo doc --open
+    cargo doc
+    miniserve target/doc

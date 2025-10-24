@@ -1,8 +1,8 @@
-pub use overlay::*;
-pub use ring::*;
-
 mod overlay;
+pub use overlay::*;
+
 mod ring;
+pub use ring::*;
 
 /// An effect that can be applied to an image.
 pub trait Effect {

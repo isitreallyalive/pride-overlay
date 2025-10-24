@@ -3,17 +3,18 @@ use pride_overlay::prelude::*;
 
 /// https://catppuccin.com/palette
 const COLOURS: &[Colour] = &[
-    Colour::from_hex(0xED8796).build(),               // red
-    Colour::from_hex(0xF5A97F).proportion(2).build(), // peach
-    Colour::from_hex(0xEED49F).build(),               // yellow
-    Colour::from_hex(0xA6DA95).build(),               // green
-    Colour::from_hex(0x7DC4E4).build(),               // sapphire
-    Colour::from_hex(0xC6A0F6).build(),               // lavender
+    Colour::hex(0xED8796), // red
+    Colour::hex(0xF5A97F), // peach
+    Colour::hex(0xF5A97F), // peach
+    Colour::hex(0xEED49F), // yellow
+    Colour::hex(0xA6DA95), // green
+    Colour::hex(0x7DC4E4), // sapphire
+    Colour::hex(0xC6A0F6), // lavender
 ];
 
 const fn make_effect() -> Ring<'static> {
-    let flag = Flag::builder(COLOURS).build();
-    Ring::custom(flag).build()
+    let flag = Flag::builder("Catppuccin", COLOURS).build();
+    Ring::builder(flag).build()
 }
 
 const EFFECT: Ring = make_effect();
