@@ -8,7 +8,7 @@ use resvg::{
 };
 
 /// Overlay the given flag on an image.
-#[derive(Builder, proc::Effect)]
+#[derive(Builder)]
 #[builder(const, start_fn(vis = "pub(crate)"))]
 pub struct Overlay<'a> {
     #[builder(start_fn)]
@@ -22,6 +22,18 @@ impl Effect for Overlay<'_> {
         let (width, height) = image.dimensions();
         let flag_overlay = create_flag_overlay(&self.flag, width, height, &self.opacity);
         overlay(image, &flag_overlay, 0, 0);
+    }
+}
+
+impl Overlay<'static> {
+    /// Create a new [Overlay] [Effect] with a builtin [PrideFlag].
+    pub const fn new(flag: crate::PrideFlag) -> OverlayBuilder<'static> {
+        Self::builder(flag.data())
+    }
+
+    /// Create a new [Overlay] [Effect] with a custom [Flag].
+    pub const fn custom(flag: crate::Flag<'static>) -> OverlayBuilder<'static> {
+        Self::builder(flag)
     }
 }
 

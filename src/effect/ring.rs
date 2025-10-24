@@ -5,7 +5,7 @@ use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
 
 /// Create a ring around an image using the colours of a [Flag].
-#[derive(Builder, proc::Effect)]
+#[derive(Builder)]
 #[builder(const, start_fn(vis = "pub(crate)"))]
 pub struct Ring<'a> {
     #[builder(start_fn)]
@@ -28,6 +28,18 @@ impl Effect for Ring<'_> {
 
         draw_smooth_circle(&mut ring_overlay, center, radius, Rgba([0, 0, 0, 0]));
         overlay(image, &ring_overlay, 0, 0);
+    }
+}
+
+impl Ring<'static> {
+    /// Create a new [Ring] [Effect] with a builtin [PrideFlag].
+    pub const fn new(flag: crate::PrideFlag) -> RingBuilder<'static> {
+        Self::builder(flag.data())
+    }
+
+    /// Create a new [Ring] [Effect] with a custom [Flag].
+    pub const fn custom(flag: crate::Flag<'static>) -> RingBuilder<'static> {
+        Self::builder(flag)
     }
 }
 
