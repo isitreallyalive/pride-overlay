@@ -1,11 +1,10 @@
-use crate::prelude::*;
+use crate::{flags::Flag, prelude::*};
 
 // common colours
 const BLACK: Colour = Colour::hex(0x000000);
 const WHITE: Colour = Colour::hex(0xFFFFFF);
 
-/// ![Agender pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/agender.svg)
-pub const AGENDER: Flag<'static> = Flag::builder(
+pub(crate) const AGENDER: Flag<'static> = Flag::builder(
     "Agender",
     &[
         BLACK,
@@ -19,8 +18,7 @@ pub const AGENDER: Flag<'static> = Flag::builder(
 )
 .build();
 
-/// ![Aromantic pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/aromantic.svg)
-pub const AROMANTIC: Flag<'static> = Flag::builder(
+pub(crate) const AROMANTIC: Flag<'static> = Flag::builder(
     "Aromantic",
     &[
         Colour::hex(0x3DA542), // green
@@ -32,8 +30,7 @@ pub const AROMANTIC: Flag<'static> = Flag::builder(
 )
 .build();
 
-/// ![Asexual pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/asexual.svg)
-pub const ASEXUAL: Flag<'static> = Flag::builder(
+pub(crate) const ASEXUAL: Flag<'static> = Flag::builder(
     "Asexual",
     &[
         BLACK,
@@ -44,8 +41,7 @@ pub const ASEXUAL: Flag<'static> = Flag::builder(
 )
 .build();
 
-/// ![Bisexual pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/bisexual.svg)
-pub const BISEXUAL: Flag<'static> = Flag::builder(
+pub(crate) const BISEXUAL: Flag<'static> = Flag::builder(
     "Bisexual",
     &[
         Colour::hex(0xD60270), // pink
@@ -57,8 +53,7 @@ pub const BISEXUAL: Flag<'static> = Flag::builder(
 )
 .build();
 
-/// ![Genderfluid pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/genderfluid.svg)
-pub const GENDERFLUID: Flag<'static> = Flag::builder(
+pub(crate) const GENDERFLUID: Flag<'static> = Flag::builder(
     "Genderfluid",
     &[
         Colour::hex(0xFF75A2), // rose
@@ -70,8 +65,7 @@ pub const GENDERFLUID: Flag<'static> = Flag::builder(
 )
 .build();
 
-/// ![Genderqueer pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/genderqueer.svg)
-pub const GENDERQUEER: Flag<'static> = Flag::builder(
+pub(crate) const GENDERQUEER: Flag<'static> = Flag::builder(
     "Genderqueer",
     &[
         Colour::hex(0xB67FDD), // lavender
@@ -81,8 +75,7 @@ pub const GENDERQUEER: Flag<'static> = Flag::builder(
 )
 .build();
 
-/// ![Intersex pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/intersex.svg)
-pub const INTERSEX: Flag<'static> = Flag::builder(
+pub(crate) const INTERSEX: Flag<'static> = Flag::builder(
     "Intersex",
     &[
         Colour::hex(0xFFD800), // gold,
@@ -95,8 +88,7 @@ pub const INTERSEX: Flag<'static> = Flag::builder(
 ))
 .build();
 
-/// ![Lesbian pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/lesbian.svg)
-pub const LESBIAN: Flag<'static> = Flag::builder(
+pub(crate) const LESBIAN: Flag<'static> = Flag::builder(
     "Lesbian",
     &[
         Colour::hex(0xD52D00), // red
@@ -108,8 +100,7 @@ pub const LESBIAN: Flag<'static> = Flag::builder(
 )
 .build();
 
-/// ![Nonbinary pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/nonbinary.svg)
-pub const NONBINARY: Flag<'static> = Flag::builder(
+pub(crate) const NONBINARY: Flag<'static> = Flag::builder(
     "Nonbinary",
     &[
         Colour::hex(0xFFF433), // yellow
@@ -120,8 +111,7 @@ pub const NONBINARY: Flag<'static> = Flag::builder(
 )
 .build();
 
-/// ![Pansexual pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/pansexual.svg)
-pub const PANSEXUAL: Flag<'static> = Flag::builder(
+pub(crate) const PANSEXUAL: Flag<'static> = Flag::builder(
     "Pansexual",
     &[
         Colour::hex(0xFF218C), // pink
@@ -131,8 +121,7 @@ pub const PANSEXUAL: Flag<'static> = Flag::builder(
 )
 .build();
 
-/// ![Polyamory pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/polyamory.svg)
-pub const POLYAMORY: Flag<'static> = Flag::builder(
+pub(crate) const POLYAMORY: Flag<'static> = Flag::builder(
     "Polyamory",
     &[
         Colour::hex(0x009FE3), // turquoise
@@ -146,8 +135,7 @@ pub const POLYAMORY: Flag<'static> = Flag::builder(
 ))
 .build();
 
-/// ![Rainbow pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/rainbow.svg)
-pub const RAINBOW: Flag<'static> = Flag::builder(
+pub(crate) const RAINBOW: Flag<'static> = Flag::builder(
     "Rainbow",
     &[
         Colour::hex(0xE50000), // red
@@ -160,8 +148,7 @@ pub const RAINBOW: Flag<'static> = Flag::builder(
 )
 .build();
 
-/// ![Transgender pride flag.](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/transgender.svg)
-pub const TRANSGENDER: Flag<'static> = Flag::builder(
+pub(crate) const TRANSGENDER: Flag<'static> = Flag::builder(
     "Transgender",
     &[
         Colour::hex(0x5BCEFA), // light turquoise

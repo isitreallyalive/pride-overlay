@@ -1,7 +1,7 @@
 [package]
 name = "pride-overlay"
 description = "overlay pride flags on images"
-version = "2.0.0"
+version = "2.1.0"
 edition = "2024"
 
 authors = ["newt <hi@newty.dev>"]
@@ -16,11 +16,22 @@ license-file = "license.md"
 default = ["rayon"]
 rayon = ["image/rayon", "imageproc/rayon"]
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
-bon = "3.8.1"
+bon = { version = "3.8.1", default-features = false, features = ["std"] }
 image = { version = "0.25.8", default-features = false }
 imageproc = { version = "0.25.0", default-features = false }
+pastey = { version = "0.1.1", default-features = false }
 resvg = { version = "0.45.1", default-features = false }
 
 [dev-dependencies]
 image = { version = "0.25.8", features = ["webp"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1.7"
+image = { version = "0.25.8", features = ["default-formats"] }
+wasm-bindgen = { version = "0.2.104", default-features = false, features = [
+    "std",
+] }

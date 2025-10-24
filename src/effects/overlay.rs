@@ -1,3 +1,4 @@
+use crate::flags::Flag;
 use crate::prelude::*;
 use image::GenericImageView;
 use image::{ImageBuffer, Rgba, RgbaImage, imageops::overlay};
@@ -8,7 +9,7 @@ use resvg::{
 };
 
 /// Effect that overlays a pride [Flag] onto an image.
-#[derive(Builder)]
+#[derive(bon::Builder)]
 #[builder(
     const,
     builder_type(doc {

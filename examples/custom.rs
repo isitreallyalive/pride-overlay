@@ -1,5 +1,5 @@
 use image::ImageResult;
-use pride_overlay::prelude::*;
+use pride_overlay::{flags::Flag, prelude::*};
 
 /// https://catppuccin.com/palette
 const COLOURS: &[Colour] = &[

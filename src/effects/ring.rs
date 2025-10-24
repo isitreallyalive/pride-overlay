@@ -1,10 +1,10 @@
-use crate::{effects::create_flag_overlay, prelude::*};
+use crate::{effects::create_flag_overlay, flags::Flag, prelude::*};
 use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
 
 /// Effect that draws a ring around an image using pride [Flag] colors.
-#[derive(Builder)]
+#[derive(bon::Builder)]
 #[builder(
     const,
     builder_type(doc {

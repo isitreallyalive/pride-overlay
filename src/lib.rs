@@ -10,7 +10,7 @@
 //! | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/input.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/overlay/intersex.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/ring/transgender.webp) |
 //!
 //! # High level API
-//! Load an image with the [`image`](https://docs.rs/image) crate, and [Overlay](effects::Overlay) the [Transgender](flags::TRANSGENDER) flag with 40% [Opacity].
+//! Load an image with the [`image`](https://docs.rs/image) crate, and [Overlay](effects::Overlay) the [Transgender](flags::Flags::Transgender) flag with 40% [Opacity].
 //!
 //! ```rust
 //! use pride_overlay::prelude::*;
@@ -20,8 +20,8 @@
 //! effect.apply(&mut image);
 //! ```
 
-#[macro_use]
-extern crate bon;
+#[cfg(target_arch = "wasm32")]
+mod wasm;
 
 /// Built-in image effects and related types.
 pub mod effects;
@@ -35,13 +35,9 @@ pub use opacity::Opacity;
 /// Commonly used types and traits.
 pub mod prelude {
     pub use crate::{
-        Colour,
-        Opacity,
+        Colour, Opacity,
         effects::{Effect, Overlay, Ring},
-        flags::{
-            Flag,
-            SvgAsset, SvgScaleMode
-        },
+        flags::{Flags, SvgAsset, SvgScaleMode},
     };
 }
 

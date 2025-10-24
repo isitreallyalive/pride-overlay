@@ -8,8 +8,12 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+  "dependencies": {
+    "pride-overlay": "../../pkg"
+  },
   "devDependencies": {
     "typescript": "~5.9.3",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "vite-plugin-wasm": "^3.5.0"
   }
 }

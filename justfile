@@ -11,4 +11,5 @@
     miniserve target/doc
 
 @wasm:
+    wasm-pack build
     cd examples/wasm && bun dev
