@@ -4,11 +4,13 @@ about: request a new pride flag to be added to the library
 title: add [FLAG] flag
 labels: enhancement, good first issue
 assignees: ''
-
 ---
 
 **flag name:** 
-<!-- e.g., lesbian, bisexual, aromantic, etc. -->
+<!--
+    e.g., lesbian, bisexual, aromantic, etc.
+    make sure we haven't already added it in src/flags/data.rs
+-->
 
 **flag description:**
 <!-- brief description of what this flag represents -->
