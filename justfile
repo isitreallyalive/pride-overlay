@@ -10,6 +10,8 @@
     cargo doc
     miniserve target/doc
 
-@wasm:
+@wasm-build:
     wasm-pack build
+
+@wasm-dev:
     cd examples/wasm && bun dev
