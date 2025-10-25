@@ -75,7 +75,7 @@
   });
 </script>
 
-<h1 class="font-mono">pride-ovelray</h1>
+<h1 class="font-mono">pride-overlay</h1>
 
 <form>
   <EnumSelect label="Flag" enum={Flags} bind:value={flag} />

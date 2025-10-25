@@ -1,0 +1,77 @@
+name: Deploy WASM example
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Rust build
+        uses: actions/cache@v4
+        with:
+          path: |
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/src/**') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install wasm-pack
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build Rust WASM
+        run: |
+          wasm-pack build
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "latest"
+
+      - name: Install dependencies
+        run: |
+          cd examples/wasm
+          npm i
+
+      - name: Build project
+        run: |
+          cd examples/wasm
+          npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: examples/wasm/dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
