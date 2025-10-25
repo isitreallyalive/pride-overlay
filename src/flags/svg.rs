@@ -1,3 +1,6 @@
+#[cfg(target_arch = "wasm32")]
+use std::borrow::Cow;
+
 /// Scaling modes for SVG assets.
 #[derive(Clone, Copy, Debug)]
 pub enum SvgScaleMode {
@@ -14,13 +17,32 @@ pub enum SvgScaleMode {
 /// An SVG asset to be used when rendering a pride flag.
 #[derive(Clone, Copy)]
 pub struct SvgAsset<'a> {
-    pub data: &'a [u8],
-    pub mode: SvgScaleMode,
+    pub(crate) data: &'a [u8],
+    pub(crate) scale: SvgScaleMode,
 }
 
 impl<'a> SvgAsset<'a> {
     /// Create a new [SvgAsset] from raw SVG data and a [SvgScaleMode].
-    pub const fn new(bytes: &'a [u8], mode: SvgScaleMode) -> Self {
-        SvgAsset { data: bytes, mode }
+    pub const fn new(data: &'a [u8], scale: SvgScaleMode) -> Self {
+        SvgAsset { data, scale }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub(crate) type SvgAssetOwned<'a> = SvgAsset<'a>;
+
+#[cfg(target_arch = "wasm32")]
+pub(crate) struct SvgAssetOwned<'a> {
+    pub(crate) data: Cow<'a, [u8]>,
+    pub(crate) scale: SvgScaleMode,
+}
+
+#[cfg(target_arch = "wasm32")]
+impl<'a> From<SvgAsset<'a>> for SvgAssetOwned<'a> {
+    fn from(asset: SvgAsset<'a>) -> Self {
+        SvgAssetOwned {
+            data: Cow::Borrowed(asset.data),
+            scale: asset.scale,
+        }
     }
 }

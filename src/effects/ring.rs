@@ -1,4 +1,4 @@
-use crate::{effects::overlay_flag, flags::Flag, prelude::*};
+use crate::{effects::overlay_flag, prelude::*};
 use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
@@ -43,7 +43,10 @@ pub fn apply_ring(
 }
 
 impl Effect for Ring {
-    fn apply(&self, image: &mut image::DynamicImage, flag: Flag) {
+    fn apply<'a, F>(&self, image: &mut image::DynamicImage, flag: F)
+    where
+        F: Into<FlagOwned<'a>>,
+    {
         if self.opacity == 0. {
             // no-op for zero opacity
         } else if self.thickness == 1. {
@@ -51,9 +54,25 @@ impl Effect for Ring {
             let effect = Overlay::builder().opacity(self.opacity).build();
             effect.apply(image, flag)
         } else {
+            let flag = flag.into();
             let (width, height) = image.dimensions();
-            let ring_flag = Flag::builder("", flag.colours).build();
-            let mut ring_overlay = overlay_flag(&ring_flag, width, height, self.opacity);
+            #[cfg(not(target_arch = "wasm32"))]
+            let ring_flag = FlagOwned {
+                name: flag.name,
+                colours: flag.colours,
+                svg: None,
+            };
+            #[cfg(target_arch = "wasm32")]
+            let ring_flag = FlagOwned {
+                    colours: flag.colours,
+                    svg: None,
+                };
+            let mut ring_overlay = overlay_flag(
+                ring_flag,
+                width,
+                height,
+                self.opacity,
+            );
 
             let center = ((width / 2) as i32, (height / 2) as i32);
             let radius =

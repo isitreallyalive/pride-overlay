@@ -1,3 +1,6 @@
+#[cfg(target_arch = "wasm32")]
+use std::borrow::Cow;
+
 use crate::prelude::*;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -18,8 +21,47 @@ pub struct Flag<'a> {
     pub name: &'a str,
     /// Colours that make up the flag.
     #[builder(start_fn)]
-    pub colours: &'a [Colour],
+    pub(crate) colours: &'a [Colour],
     pub(crate) svg: Option<SvgAsset<'a>>,
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub(crate) type FlagOwned<'a> = Flag<'a>;
+
+#[cfg(target_arch = "wasm32")]
+pub struct FlagOwned<'a> {
+    pub(crate) colours: Cow<'a, [Colour]>,
+    pub(crate) svg: Option<SvgAssetOwned<'a>>,
+}
+
+impl<'a> From<&Flag<'a>> for Flag<'a> {
+    fn from(flag: &Flag<'a>) -> Self {
+        *flag
+    }
+}
+
+
+#[cfg(target_arch = "wasm32")]
+impl<'a> From<Flag<'a>> for FlagOwned<'a> {
+    fn from(flag: Flag<'a>) -> Self {
+        Self {
+            colours: Cow::Owned(flag.colours.to_vec()),
+            svg: flag.svg.map(|svg| svg.into()),
+        }
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+impl<'a> From<&'a Flag<'a>> for FlagOwned<'a> {
+    fn from(flag: &'a Flag<'a>) -> Self {
+        Self {
+            colours: Cow::Borrowed(flag.colours),
+            svg: flag.svg.as_ref().map(|svg| SvgAssetOwned {
+                data: Cow::Borrowed(svg.data),
+                scale: svg.scale,
+            }),
+        }
+    }
 }
 
 macro_rules! gen_flags {
@@ -53,11 +95,11 @@ macro_rules! gen_flags {
                 }
             }
 
-            impl From<Flags> for Flag<'static> {
+            impl<'a> From<Flags> for FlagOwned<'a> {
                 fn from(flag: Flags) -> Self {
                     match flag {
                         $(
-                            Flags::$flag => [<$flag:upper>],
+                            Flags::$flag => [<$flag:upper>].into(),
                         )*
                     }
                 }

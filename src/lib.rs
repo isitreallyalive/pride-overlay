@@ -31,6 +31,7 @@ pub mod flags;
 
 /// Commonly used types and traits.
 pub mod prelude {
+    pub(crate) use crate::flags::{FlagOwned, SvgAssetOwned};
     pub use crate::{
         Colour,
         effects::{Effect, Overlay, Ring},

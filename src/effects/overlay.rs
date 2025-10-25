@@ -1,4 +1,3 @@
-use crate::flags::Flag;
 use crate::prelude::*;
 use image::GenericImageView;
 use image::{ImageBuffer, Rgba, RgbaImage, imageops::overlay};
@@ -36,19 +35,22 @@ pub fn apply_overlay(image: &[u8], flag: Flags, opacity: Option<f32>) -> Vec<u8>
 }
 
 impl Effect for Overlay {
-    fn apply(&self, image: &mut image::DynamicImage, flag: Flag) {
+    fn apply<'a, F>(&self, image: &mut image::DynamicImage, flag: F)
+    where
+        F: Into<FlagOwned<'a>>,
+    {
         if self.opacity == 0. {
             // no-op for zero opacity
         } else {
             let (width, height) = image.dimensions();
-            let flag_overlay = overlay_flag(&flag, width, height, self.opacity);
+            let flag_overlay = overlay_flag(flag.into(), width, height, self.opacity);
             overlay(image, &flag_overlay, 0, 0);
         }
     }
 }
 
 pub(crate) fn overlay_flag<'a>(
-    flag: &Flag<'a>,
+    flag: FlagOwned<'a>,
     width: u32,
     height: u32,
     opacity: f32,
@@ -57,17 +59,19 @@ pub(crate) fn overlay_flag<'a>(
 
     match flag.svg {
         Some(svg) => overlay_svg(svg, width, height, alpha),
-        None => overlay_colours(flag.colours, width, height, alpha),
+        None => overlay_colours(&flag.colours, width, height, alpha),
     }
 }
 
 fn overlay_svg(
-    SvgAsset { data, mode, .. }: SvgAsset,
+    SvgAssetOwned {
+        data, scale: mode, ..
+    }: SvgAssetOwned,
     width: u32,
     height: u32,
     alpha: u8,
 ) -> RgbaImage {
-    let tree = Tree::from_data(data, &usvg::Options::default()).unwrap();
+    let tree = Tree::from_data(&data, &usvg::Options::default()).unwrap();
     let mut pixmap = Pixmap::new(width, height).unwrap();
 
     let size = tree.size();
