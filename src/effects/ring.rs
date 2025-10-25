@@ -1,12 +1,12 @@
-use crate::{effects::create_flag_overlay, flags::Flag, prelude::*};
+use crate::{effects::overlay_flag, flags::Flag, prelude::*};
 use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
-const DEFAULT_OPACITY: Opacity = Opacity::OPAQUE;
-const DEFAULT_THICKNESS: u32 = 12;
+const DEFAULT_OPACITY: f32 = 1.;
+const DEFAULT_THICKNESS: f32 = 0.1;
 
 /// Effect that draws a ring around an image using pride [Flag] colors.
 #[derive(bon::Builder)]
@@ -17,61 +17,76 @@ const DEFAULT_THICKNESS: u32 = 12;
     })
 )]
 pub struct Ring {
-    #[builder(default = DEFAULT_OPACITY)]
-    opacity: Opacity,
-    #[builder(default = DEFAULT_THICKNESS)]
-    thickness: u32,
+    /// Opacity of the ring, from 0.0 (transparent) to 1.0 (opaque).
+    #[builder(default = DEFAULT_OPACITY, with = |percent: f32| percent.clamp(0., 1.))]
+    opacity: f32,
+    /// Thickness of the ring as a percentage of the image width, from 0.0 to 1.0.
+    ///
+    /// You probably want this to be fairly small!
+    #[builder(default = DEFAULT_THICKNESS, with = |percent: f32| percent.clamp(0., 1.))]
+    thickness: f32,
 }
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(js_name = "applyRing")]
-pub fn apply_ring(image: &[u8], flag: Flags, opacity: Option<f32>, thickness: Option<i32>) -> Vec<u8> {
+pub fn apply_ring(
+    image: &[u8],
+    flag: Flags,
+    opacity: Option<f32>,
+    thickness: Option<f32>,
+) -> Vec<u8> {
     let effect = Ring::builder()
-        .opacity(opacity.map(Opacity::new).unwrap_or(DEFAULT_OPACITY))
-        .thickness(thickness.map(|t| t.max(0) as u32).unwrap_or(DEFAULT_THICKNESS))
+        .opacity(opacity.unwrap_or(DEFAULT_OPACITY))
+        .thickness(thickness.unwrap_or(DEFAULT_THICKNESS))
         .build();
     super::apply(image, flag, effect).unwrap()
 }
 
 impl Effect for Ring {
     fn apply(&self, image: &mut image::DynamicImage, flag: Flag) {
-        let (width, height) = image.dimensions();
-        let ring_flag = Flag::builder("", flag.colours).build();
-        let mut ring_overlay = create_flag_overlay(&ring_flag, width, height, &self.opacity);
+        if self.opacity == 0. {
+            // no-op for zero opacity
+        } else if self.thickness == 1. {
+            // full thickness is just an overlay
+            let effect = Overlay::builder().opacity(self.opacity).build();
+            effect.apply(image, flag)
+        } else {
+            let (width, height) = image.dimensions();
+            let ring_flag = Flag::builder("", flag.colours).build();
+            let mut ring_overlay = overlay_flag(&ring_flag, width, height, self.opacity);
 
-        let center = ((width / 2) as i32, (height / 2) as i32);
-        let radius = (width / 2).saturating_sub(self.thickness) as i32;
+            let center = ((width / 2) as i32, (height / 2) as i32);
+            let radius =
+                (width / 2).saturating_sub(((width / 2) as f32 * self.thickness) as u32) as i32;
 
-        draw_circle(&mut ring_overlay, center, radius, Rgba([0, 0, 0, 0]));
-        overlay(image, &ring_overlay, 0, 0);
+            draw_circle(&mut ring_overlay, center, radius, Rgba([0, 0, 0, 0]));
+            overlay(image, &ring_overlay, 0, 0);
+        }
     }
 }
 
 /// Draws a smooth circle on the image using anti-aliasing.
 fn draw_circle(image: &mut RgbaImage, center: (i32, i32), radius: i32, color: Rgba<u8>) {
     const MIN_SIDES: f32 = 32.;
-    const MAX_SIZES: f32 = 256.;
+    const MAX_SIDES: f32 = 256.;
     const PIXELS_PER_SIDE: f32 = 4.;
 
     // determine the number of sides to use for a the polygon
     // that approximates the circle.
     // circumference = 2 * pi * radius
     let circumference = 2.0 * PI * radius as f32;
-    let sides = (circumference / PIXELS_PER_SIDE).clamp(MIN_SIDES, MAX_SIZES) as usize;
+    let sides = (circumference / PIXELS_PER_SIDE).clamp(MIN_SIDES, MAX_SIDES) as usize;
 
     // compute the points of the polygon
-    let mut points = Vec::with_capacity(sides);
-    let mut angle = 0.;
-
-    for _ in 0..sides {
-        // angle_{i + 1} = angle_{i} + (2 * pi / sides)
-        angle += 2.0 * PI / (sides as f32);
-
-        // calculate the x and y coordinates of the point
-        let (x, y) = center;
-        let (dx, dy) = (radius as f32 * angle.cos(), radius as f32 * angle.sin());
-        points.push(Point::new(x + dx as i32, y + dy as i32));
-    }
+    let points: Vec<Point<i32>> = (0..sides)
+        .map(|i| {
+            let theta = 2.0 * PI * (i as f32) / (sides as f32);
+            let (x, y) = center;
+            let dx = radius as f32 * theta.cos();
+            let dy = radius as f32 * theta.sin();
+            Point::new(x + dx.round() as i32, y + dy.round() as i32)
+        })
+        .collect();
 
     draw_antialiased_polygon_mut(image, &points, color, interpolate);
 }

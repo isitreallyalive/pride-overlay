@@ -14,7 +14,7 @@ pub trait Effect {
 
 /// Apply an effect to an image.
 #[cfg(target_arch = "wasm32")]
-pub fn apply<'a, E: Effect>(
+pub fn apply<E: Effect>(
     data: &[u8],
     flag: Flags,
     effect: E,

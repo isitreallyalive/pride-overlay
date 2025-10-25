@@ -10,7 +10,7 @@ use resvg::{
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
-const DEFAULT_OPACITY: Opacity = Opacity::HALF;
+const DEFAULT_OPACITY: f32 = 0.5;
 
 /// Effect that overlays a pride [Flag] onto an image.
 #[derive(bon::Builder)]
@@ -21,34 +21,39 @@ const DEFAULT_OPACITY: Opacity = Opacity::HALF;
     })
 )]
 pub struct Overlay {
-    #[builder(default = DEFAULT_OPACITY)]
-    opacity: Opacity,
+    /// Opacity of the overlay, from 0.0 (transparent) to 1.0 (opaque).
+    #[builder(default = DEFAULT_OPACITY, with = |percent: f32| percent.clamp(0., 1.))]
+    opacity: f32,
 }
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(js_name = "applyOverlay")]
 pub fn apply_overlay(image: &[u8], flag: Flags, opacity: Option<f32>) -> Vec<u8> {
     let effect = Overlay::builder()
-        .opacity(opacity.map(Opacity::new).unwrap_or(DEFAULT_OPACITY))
+        .opacity(opacity.unwrap_or(DEFAULT_OPACITY))
         .build();
     super::apply(image, flag, effect).unwrap()
 }
 
 impl Effect for Overlay {
     fn apply(&self, image: &mut image::DynamicImage, flag: Flag) {
-        let (width, height) = image.dimensions();
-        let flag_overlay = create_flag_overlay(&flag, width, height, &self.opacity);
-        overlay(image, &flag_overlay, 0, 0);
+        if self.opacity == 0. {
+            // no-op for zero opacity
+        } else {
+            let (width, height) = image.dimensions();
+            let flag_overlay = overlay_flag(&flag, width, height, self.opacity);
+            overlay(image, &flag_overlay, 0, 0);
+        }
     }
 }
 
-pub(crate) fn create_flag_overlay<'a>(
+pub(crate) fn overlay_flag<'a>(
     flag: &Flag<'a>,
     width: u32,
     height: u32,
-    opacity: &Opacity,
+    opacity: f32,
 ) -> RgbaImage {
-    let alpha = opacity.get_raw();
+    let alpha = (opacity * u8::MAX as f32) as u8;
 
     match flag.svg {
         Some(svg) => overlay_svg(svg, width, height, alpha),

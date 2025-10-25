@@ -53,9 +53,9 @@ macro_rules! gen_flags {
                 }
             }
 
-            impl Into<Flag<'static>> for Flags {
-                fn into(self) -> Flag<'static> {
-                    match self {
+            impl From<Flags> for Flag<'static> {
+                fn from(flag: Flags) -> Self {
+                    match flag {
                         $(
                             Flags::$flag => [<$flag:upper>],
                         )*

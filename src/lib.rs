@@ -29,13 +29,10 @@ pub mod effects;
 /// Built-in pride flags and related types.
 pub mod flags;
 
-mod opacity;
-pub use opacity::Opacity;
-
 /// Commonly used types and traits.
 pub mod prelude {
     pub use crate::{
-        Colour, Opacity,
+        Colour,
         effects::{Effect, Overlay, Ring},
         flags::{Flags, SvgAsset, SvgScaleMode},
     };

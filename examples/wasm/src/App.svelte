@@ -5,12 +5,11 @@
   import defaultImg from "../../input.webp";
 
   import { Flags, applyOverlay, applyRing } from "pride-overlay";
-    import Label from "$lib/components/ui/label/label.svelte";
-    import Input from "$lib/components/ui/input/input.svelte";
+  import Label from "$lib/components/ui/label/label.svelte";
 
   enum Effect {
     Overlay,
-    Ring
+    Ring,
   }
 
   // image elements
@@ -21,7 +20,7 @@
   let flag = $state(Flags.Transgender);
   let effect = $state(Effect.Overlay);
   let opacity = $state(0.5);
-  let thickness = $state(12);
+  let thickness = $state(0.1);
 
   // reusable offscreen canvas to avoid allocations on each conversion
   const _offscreen = document.createElement("canvas");
@@ -52,7 +51,12 @@
   /**
    * Apply the given effect and flag to the before image, updating the after image.
    */
-  async function applyEffect(effect: Effect, flag: Flags, opacity: number, thickness: number): Promise<void> {
+  async function applyEffect(
+    effect: Effect,
+    flag: Flags,
+    opacity: number,
+    thickness: number,
+  ): Promise<void> {
     // call pride-overlay to apply the effect
     const beforeData = await imageToUint8Array(beforeImg);
     let afterData: Uint8Array;
@@ -92,7 +96,6 @@
     applyEffect(effect, flag, opacity, thickness);
   });
 
-  
   $effect(() => {
     if (thickness < 0) thickness = 0;
   });
@@ -104,10 +107,23 @@
   <EnumSelect label="Flag" enum={Flags} bind:value={flag} />
   <EnumSelect label="Effect" enum={Effect} bind:value={effect} />
   <Label for="opacity" class="font-bold">Opacity</Label>
-  <Slider id="opacity" class="w-1/8" type="single" max={1} step={0.01} bind:value={opacity} />
+  <Slider
+    id="opacity"
+    class="w-1/8"
+    type="single"
+    max={1}
+    step={0.01}
+    bind:value={opacity}
+  />
   {#if effect === Effect.Ring}
-      <Label for="thickness" class="font-bold">Thickness</Label>
-      <Input id="thickness" class="w-1/16" type="number" min={0} bind:value={thickness} />
+    <Label for="thickness" class="font-bold">Thickness</Label>
+    <Slider
+      id="thickness"
+      class="w-1/8"
+      type="single"
+      max={1}
+      step={0.01}
+      bind:value={thickness} />
   {/if}
 </form>
 
