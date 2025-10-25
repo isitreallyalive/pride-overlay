@@ -1,8 +1,10 @@
 #[cfg(target_arch = "wasm32")]
-use std::borrow::Cow;
+use wasm_bindgen::prelude::*;
 
 /// Scaling modes for SVG assets.
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(target_arch = "wasm32", derive(Serialize, Deserialize))]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 pub enum SvgScaleMode {
     /// Fit the whole SVG inside the destination (preserve aspect ratio).
     Contain,
@@ -30,19 +32,3 @@ impl<'a> SvgAsset<'a> {
 
 #[cfg(not(target_arch = "wasm32"))]
 pub(crate) type SvgAssetOwned<'a> = SvgAsset<'a>;
-
-#[cfg(target_arch = "wasm32")]
-pub(crate) struct SvgAssetOwned<'a> {
-    pub(crate) data: Cow<'a, [u8]>,
-    pub(crate) scale: SvgScaleMode,
-}
-
-#[cfg(target_arch = "wasm32")]
-impl<'a> From<SvgAsset<'a>> for SvgAssetOwned<'a> {
-    fn from(asset: SvgAsset<'a>) -> Self {
-        SvgAssetOwned {
-            data: Cow::Borrowed(asset.data),
-            scale: asset.scale,
-        }
-    }
-}

@@ -4,13 +4,27 @@
   import { Slider } from "$lib/components/ui/slider";
   import defaultImg from "../../input.webp";
 
-  import { Flags, applyOverlay, applyRing } from "pride-overlay";
+  import { Flags as DefaultFlags, type FlagData, type Flag, applyOverlay, applyRing } from "pride-overlay";
   import Label from "$lib/components/ui/label/label.svelte";
 
   enum Effect {
     Overlay,
     Ring,
   }
+
+  const CATPPUCCIN: FlagData = {
+    colours: ["#ED8796", "#F5A97F", "#F5A97F", "#EED49F", "#A6DA95", "#7DC4E4", "#C6A0F6"],
+  };
+
+  enum CustomFlags {
+    Catppuccin
+  }
+
+  const Flags = {
+    ...DefaultFlags,
+    ...CustomFlags
+  } as const;
+  type Flags = DefaultFlags | CustomFlags;
 
   // image elements
   let beforeImg!: HTMLImageElement;
@@ -60,12 +74,19 @@
     // call pride-overlay to apply the effect
     const beforeData = await imageToUint8Array(beforeImg);
     let afterData: Uint8Array;
+    let flagData: Flag;
+    if (flag === CustomFlags.Catppuccin) {
+      flagData = CATPPUCCIN;
+    } else {
+      flagData = DefaultFlags[flag] as DefaultFlags;
+    }
+    console.log(flagData);
     switch (effect) {
       case Effect.Overlay:
-        afterData = applyOverlay(beforeData, flag, opacity);
+        afterData = applyOverlay(beforeData, flagData, opacity);
         break;
       case Effect.Ring:
-        afterData = applyRing(beforeData, flag, opacity, thickness);
+        afterData = applyRing(beforeData, flagData, opacity, thickness);
         break;
     }
 

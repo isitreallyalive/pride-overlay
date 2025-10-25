@@ -1,6 +1,3 @@
-#[cfg(target_arch = "wasm32")]
-use std::borrow::Cow;
-
 use crate::prelude::*;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -11,6 +8,11 @@ use data::*;
 mod svg;
 #[doc(inline)]
 pub use svg::*;
+
+#[cfg(target_arch = "wasm32")]
+pub(crate) mod wasm;
+#[cfg(target_arch = "wasm32")]
+pub(crate) use wasm::{FlagOwned, SvgAssetOwned};
 
 /// A pride flag.
 #[derive(bon::Builder, Clone, Copy)]
@@ -28,42 +30,6 @@ pub struct Flag<'a> {
 #[cfg(not(target_arch = "wasm32"))]
 pub(crate) type FlagOwned<'a> = Flag<'a>;
 
-#[cfg(target_arch = "wasm32")]
-pub struct FlagOwned<'a> {
-    pub(crate) colours: Cow<'a, [Colour]>,
-    pub(crate) svg: Option<SvgAssetOwned<'a>>,
-}
-
-impl<'a> From<&Flag<'a>> for Flag<'a> {
-    fn from(flag: &Flag<'a>) -> Self {
-        *flag
-    }
-}
-
-
-#[cfg(target_arch = "wasm32")]
-impl<'a> From<Flag<'a>> for FlagOwned<'a> {
-    fn from(flag: Flag<'a>) -> Self {
-        Self {
-            colours: Cow::Owned(flag.colours.to_vec()),
-            svg: flag.svg.map(|svg| svg.into()),
-        }
-    }
-}
-
-#[cfg(target_arch = "wasm32")]
-impl<'a> From<&'a Flag<'a>> for FlagOwned<'a> {
-    fn from(flag: &'a Flag<'a>) -> Self {
-        Self {
-            colours: Cow::Borrowed(flag.colours),
-            svg: flag.svg.as_ref().map(|svg| SvgAssetOwned {
-                data: Cow::Borrowed(svg.data),
-                scale: svg.scale,
-            }),
-        }
-    }
-}
-
 macro_rules! gen_flags {
     (
          $(
@@ -73,6 +39,7 @@ macro_rules! gen_flags {
     ) => {
         /// Built-in pride flags.
         #[derive(Clone, Copy)]
+        #[cfg_attr(target_arch = "wasm32", derive(Serialize, Deserialize))]
         #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
         pub enum Flags {
             $(
@@ -95,7 +62,7 @@ macro_rules! gen_flags {
                 }
             }
 
-            impl<'a> From<Flags> for FlagOwned<'a> {
+            impl From<Flags> for FlagOwned<'_> {
                 fn from(flag: Flags) -> Self {
                     match flag {
                         $(

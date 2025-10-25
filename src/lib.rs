@@ -23,6 +23,17 @@
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
+#[cfg(target_arch = "wasm32")]
+#[macro_use]
+extern crate serde;
+#[cfg(target_arch = "wasm32")]
+#[macro_use]
+extern crate tsify;
+
+mod colour;
+#[doc(inline)]
+pub use colour::Colour;
+
 /// Built-in image effects and related types.
 pub mod effects;
 
@@ -31,25 +42,11 @@ pub mod flags;
 
 /// Commonly used types and traits.
 pub mod prelude {
-    pub(crate) use crate::flags::{FlagOwned, SvgAssetOwned};
     pub use crate::{
         Colour,
         effects::{Effect, Overlay, Ring},
         flags::{Flags, SvgAsset, SvgScaleMode},
     };
-}
-
-/// Represents a colour in RGB format.
-#[derive(Clone, Copy)]
-pub struct Colour(pub(crate) u8, pub(crate) u8, pub(crate) u8);
-
-impl Colour {
-    pub const fn hex(hex: u32) -> Colour {
-        let r = ((hex >> 16) & 0xFF) as u8;
-        let g = ((hex >> 8) & 0xFF) as u8;
-        let b = (hex & 0xFF) as u8;
-        Colour(r, g, b)
-    }
 }
 
 #[cfg(target_arch = "wasm32")]

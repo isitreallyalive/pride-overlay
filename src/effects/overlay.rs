@@ -1,3 +1,4 @@
+use crate::flags::{FlagOwned, SvgAssetOwned};
 use crate::prelude::*;
 use image::GenericImageView;
 use image::{ImageBuffer, Rgba, RgbaImage, imageops::overlay};
@@ -27,7 +28,7 @@ pub struct Overlay {
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(js_name = "applyOverlay")]
-pub fn apply_overlay(image: &[u8], flag: Flags, opacity: Option<f32>) -> Vec<u8> {
+pub fn apply_overlay(image: &[u8], flag: crate::flags::wasm::Flag, opacity: Option<f32>) -> Vec<u8> {
     let effect = Overlay::builder()
         .opacity(opacity.unwrap_or(DEFAULT_OPACITY))
         .build();
@@ -49,17 +50,21 @@ impl Effect for Overlay {
     }
 }
 
-pub(crate) fn overlay_flag<'a>(
-    flag: FlagOwned<'a>,
-    width: u32,
-    height: u32,
-    opacity: f32,
-) -> RgbaImage {
+pub(crate) fn overlay_flag(flag: FlagOwned, width: u32, height: u32, opacity: f32) -> RgbaImage {
     let alpha = (opacity * u8::MAX as f32) as u8;
 
     match flag.svg {
         Some(svg) => overlay_svg(svg, width, height, alpha),
-        None => overlay_colours(&flag.colours, width, height, alpha),
+        None => {
+            #[cfg(target_arch = "wasm32")]
+            {
+                overlay_colours(&flag.colours, width, height, alpha)
+            }
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                overlay_colours(flag.colours, width, height, alpha)
+            }
+        }
     }
 }
 
@@ -71,7 +76,10 @@ fn overlay_svg(
     height: u32,
     alpha: u8,
 ) -> RgbaImage {
+    #[cfg(target_arch = "wasm32")]
     let tree = Tree::from_data(&data, &usvg::Options::default()).unwrap();
+    #[cfg(not(target_arch = "wasm32"))]
+    let tree = Tree::from_data(data, &usvg::Options::default()).unwrap();
     let mut pixmap = Pixmap::new(width, height).unwrap();
 
     let size = tree.size();

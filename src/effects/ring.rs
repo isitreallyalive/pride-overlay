@@ -1,7 +1,10 @@
+use crate::flags::FlagOwned;
 use crate::{effects::overlay_flag, prelude::*};
 use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
+#[cfg(target_arch = "wasm32")]
+use std::marker::PhantomData;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
@@ -31,7 +34,7 @@ pub struct Ring {
 #[wasm_bindgen(js_name = "applyRing")]
 pub fn apply_ring(
     image: &[u8],
-    flag: Flags,
+    flag: crate::flags::wasm::Flag,
     opacity: Option<f32>,
     thickness: Option<f32>,
 ) -> Vec<u8> {
@@ -64,15 +67,11 @@ impl Effect for Ring {
             };
             #[cfg(target_arch = "wasm32")]
             let ring_flag = FlagOwned {
-                    colours: flag.colours,
-                    svg: None,
-                };
-            let mut ring_overlay = overlay_flag(
-                ring_flag,
-                width,
-                height,
-                self.opacity,
-            );
+                colours: flag.colours,
+                svg: None,
+                _marker: PhantomData,
+            };
+            let mut ring_overlay = overlay_flag(ring_flag, width, height, self.opacity);
 
             let center = ((width / 2) as i32, (height / 2) as i32);
             let radius =

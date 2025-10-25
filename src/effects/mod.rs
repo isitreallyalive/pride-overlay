@@ -1,6 +1,6 @@
 use crate::flags::FlagOwned;
 #[cfg(target_arch = "wasm32")]
-use crate::flags::Flags;
+use crate::flags::{wasm::Flag};
 
 mod overlay;
 pub use overlay::*;
@@ -14,7 +14,7 @@ pub trait Effect {
 
 /// Apply an effect to an image.
 #[cfg(target_arch = "wasm32")]
-pub fn apply<E: Effect>(data: &[u8], flag: Flags, effect: E) -> Result<Vec<u8>, image::ImageError> {
+pub fn apply<E: Effect>(data: &[u8], flag: Flag, effect: E) -> Result<Vec<u8>, image::ImageError> {
     use std::io::Cursor;
 
     let format = image::guess_format(data)?;
