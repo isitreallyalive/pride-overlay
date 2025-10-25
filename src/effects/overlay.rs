@@ -7,6 +7,10 @@ use resvg::{
     tiny_skia::{Pixmap, Transform},
     usvg::{self, Tree},
 };
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
+
+const DEFAULT_OPACITY: Opacity = Opacity::HALF;
 
 /// Effect that overlays a pride [Flag] onto an image.
 #[derive(bon::Builder)]
@@ -14,28 +18,27 @@ use resvg::{
     const,
     builder_type(doc {
         /// Builder for the [Overlay] effect.
-    }),
-    start_fn(vis = "pub(crate)", name = "_builder")
+    })
 )]
-pub struct Overlay<'a> {
-    #[builder(start_fn)]
-    flag: Flag<'a>,
-    #[builder(default = Opacity::HALF)]
+pub struct Overlay {
+    #[builder(default = DEFAULT_OPACITY)]
     opacity: Opacity,
 }
 
-impl<'a> Effect for Overlay<'a> {
-    fn apply(&self, image: &mut image::DynamicImage) {
-        let (width, height) = image.dimensions();
-        let flag_overlay = create_flag_overlay(&self.flag, width, height, &self.opacity);
-        overlay(image, &flag_overlay, 0, 0);
-    }
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(js_name = "applyOverlay")]
+pub fn apply_overlay(image: &[u8], flag: Flags, opacity: Option<f32>) -> Vec<u8> {
+    let effect = Overlay::builder()
+        .opacity(opacity.map(Opacity::new).unwrap_or(DEFAULT_OPACITY))
+        .build();
+    super::apply(image, flag, effect).unwrap()
 }
 
-impl<'a> Overlay<'a> {
-    /// Create a new [Overlay] [Effect] with a [Flag].
-    pub const fn builder(flag: Flag<'a>) -> OverlayBuilder<'a> {
-        Self::_builder(flag)
+impl Effect for Overlay {
+    fn apply(&self, image: &mut image::DynamicImage, flag: Flag) {
+        let (width, height) = image.dimensions();
+        let flag_overlay = create_flag_overlay(&flag, width, height, &self.opacity);
+        overlay(image, &flag_overlay, 0, 0);
     }
 }
 

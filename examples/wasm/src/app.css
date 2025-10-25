@@ -10,7 +10,7 @@
 
 @layer base {
   body {
-    @apply bg-background text-foreground prose w-screen prose-ctp p-8;
+    @apply bg-background min-w-screen text-foreground prose w-screen prose-ctp p-8;
   }
 
   form,

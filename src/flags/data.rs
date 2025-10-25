@@ -4,7 +4,7 @@ use crate::{flags::Flag, prelude::*};
 const BLACK: Colour = Colour::hex(0x000000);
 const WHITE: Colour = Colour::hex(0xFFFFFF);
 
-pub(crate) const AGENDER: Flag<'static> = Flag::builder(
+pub(crate) const AGENDER: Flag = Flag::builder(
     "Agender",
     &[
         BLACK,
@@ -18,7 +18,7 @@ pub(crate) const AGENDER: Flag<'static> = Flag::builder(
 )
 .build();
 
-pub(crate) const AROMANTIC: Flag<'static> = Flag::builder(
+pub(crate) const AROMANTIC: Flag = Flag::builder(
     "Aromantic",
     &[
         Colour::hex(0x3DA542), // green
@@ -30,7 +30,7 @@ pub(crate) const AROMANTIC: Flag<'static> = Flag::builder(
 )
 .build();
 
-pub(crate) const ASEXUAL: Flag<'static> = Flag::builder(
+pub(crate) const ASEXUAL: Flag = Flag::builder(
     "Asexual",
     &[
         BLACK,
@@ -41,7 +41,7 @@ pub(crate) const ASEXUAL: Flag<'static> = Flag::builder(
 )
 .build();
 
-pub(crate) const BISEXUAL: Flag<'static> = Flag::builder(
+pub(crate) const BISEXUAL: Flag = Flag::builder(
     "Bisexual",
     &[
         Colour::hex(0xD60270), // pink
@@ -53,7 +53,7 @@ pub(crate) const BISEXUAL: Flag<'static> = Flag::builder(
 )
 .build();
 
-pub(crate) const GENDERFLUID: Flag<'static> = Flag::builder(
+pub(crate) const GENDERFLUID: Flag = Flag::builder(
     "Genderfluid",
     &[
         Colour::hex(0xFF75A2), // rose
@@ -65,7 +65,7 @@ pub(crate) const GENDERFLUID: Flag<'static> = Flag::builder(
 )
 .build();
 
-pub(crate) const GENDERQUEER: Flag<'static> = Flag::builder(
+pub(crate) const GENDERQUEER: Flag = Flag::builder(
     "Genderqueer",
     &[
         Colour::hex(0xB67FDD), // lavender
@@ -75,7 +75,7 @@ pub(crate) const GENDERQUEER: Flag<'static> = Flag::builder(
 )
 .build();
 
-pub(crate) const INTERSEX: Flag<'static> = Flag::builder(
+pub(crate) const INTERSEX: Flag = Flag::builder(
     "Intersex",
     &[
         Colour::hex(0xFFD800), // gold,
@@ -88,7 +88,7 @@ pub(crate) const INTERSEX: Flag<'static> = Flag::builder(
 ))
 .build();
 
-pub(crate) const LESBIAN: Flag<'static> = Flag::builder(
+pub(crate) const LESBIAN: Flag = Flag::builder(
     "Lesbian",
     &[
         Colour::hex(0xD52D00), // red
@@ -100,7 +100,7 @@ pub(crate) const LESBIAN: Flag<'static> = Flag::builder(
 )
 .build();
 
-pub(crate) const NONBINARY: Flag<'static> = Flag::builder(
+pub(crate) const NONBINARY: Flag = Flag::builder(
     "Nonbinary",
     &[
         Colour::hex(0xFFF433), // yellow
@@ -111,7 +111,7 @@ pub(crate) const NONBINARY: Flag<'static> = Flag::builder(
 )
 .build();
 
-pub(crate) const PANSEXUAL: Flag<'static> = Flag::builder(
+pub(crate) const PANSEXUAL: Flag = Flag::builder(
     "Pansexual",
     &[
         Colour::hex(0xFF218C), // pink
@@ -121,7 +121,7 @@ pub(crate) const PANSEXUAL: Flag<'static> = Flag::builder(
 )
 .build();
 
-pub(crate) const POLYAMORY: Flag<'static> = Flag::builder(
+pub(crate) const POLYAMORY: Flag = Flag::builder(
     "Polyamory",
     &[
         Colour::hex(0x009FE3), // turquoise
@@ -135,7 +135,7 @@ pub(crate) const POLYAMORY: Flag<'static> = Flag::builder(
 ))
 .build();
 
-pub(crate) const RAINBOW: Flag<'static> = Flag::builder(
+pub(crate) const RAINBOW: Flag = Flag::builder(
     "Rainbow",
     &[
         Colour::hex(0xE50000), // red
@@ -148,7 +148,7 @@ pub(crate) const RAINBOW: Flag<'static> = Flag::builder(
 )
 .build();
 
-pub(crate) const TRANSGENDER: Flag<'static> = Flag::builder(
+pub(crate) const TRANSGENDER: Flag = Flag::builder(
     "Transgender",
     &[
         Colour::hex(0x5BCEFA), // light turquoise

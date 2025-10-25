@@ -16,12 +16,12 @@
 //! use pride_overlay::prelude::*;
 //!
 //! let mut image = image::open("path/to/image.webp")?;
-//! let effect = Overlay::builder(TRANSGENDER).opacity(Opacity::new(0.4)).build();
+//! let effect = Overlay::builder(Flags::Transgender).opacity(Opacity::new(0.4)).build();
 //! effect.apply(&mut image);
 //! ```
 
 #[cfg(target_arch = "wasm32")]
-mod wasm;
+use wasm_bindgen::prelude::*;
 
 /// Built-in image effects and related types.
 pub mod effects;
@@ -52,4 +52,11 @@ impl Colour {
         let b = (hex & 0xFF) as u8;
         Colour(r, g, b)
     }
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(start)]
+pub fn init() {
+    // panic to the console
+    console_error_panic_hook::set_once();
 }

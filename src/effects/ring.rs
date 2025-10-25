@@ -2,6 +2,11 @@ use crate::{effects::create_flag_overlay, flags::Flag, prelude::*};
 use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
+
+const DEFAULT_OPACITY: Opacity = Opacity::OPAQUE;
+const DEFAULT_THICKNESS: u32 = 12;
 
 /// Effect that draws a ring around an image using pride [Flag] colors.
 #[derive(bon::Builder)]
@@ -9,23 +14,29 @@ use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, po
     const,
     builder_type(doc {
         /// Builder for the [Ring] effect.
-    }),
-    start_fn(vis = "pub(crate)", name = "_builder")
+    })
 )]
-pub struct Ring<'a> {
-    #[builder(start_fn)]
-    flag: Flag<'a>,
-    #[builder(default = Opacity::OPAQUE)]
+pub struct Ring {
+    #[builder(default = DEFAULT_OPACITY)]
     opacity: Opacity,
-    #[builder(default = 12)]
+    #[builder(default = DEFAULT_THICKNESS)]
     thickness: u32,
 }
 
-impl Effect for Ring<'_> {
-    fn apply(&self, image: &mut image::DynamicImage) {
-        let (width, height) = image.dimensions();
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(js_name = "applyRing")]
+pub fn apply_ring(image: &[u8], flag: Flags, opacity: Option<f32>, thickness: Option<i32>) -> Vec<u8> {
+    let effect = Ring::builder()
+        .opacity(opacity.map(Opacity::new).unwrap_or(DEFAULT_OPACITY))
+        .thickness(thickness.map(|t| t.max(0) as u32).unwrap_or(DEFAULT_THICKNESS))
+        .build();
+    super::apply(image, flag, effect).unwrap()
+}
 
-        let ring_flag = Flag::builder("", self.flag.colours).build();
+impl Effect for Ring {
+    fn apply(&self, image: &mut image::DynamicImage, flag: Flag) {
+        let (width, height) = image.dimensions();
+        let ring_flag = Flag::builder("", flag.colours).build();
         let mut ring_overlay = create_flag_overlay(&ring_flag, width, height, &self.opacity);
 
         let center = ((width / 2) as i32, (height / 2) as i32);
@@ -33,13 +44,6 @@ impl Effect for Ring<'_> {
 
         draw_circle(&mut ring_overlay, center, radius, Rgba([0, 0, 0, 0]));
         overlay(image, &ring_overlay, 0, 0);
-    }
-}
-
-impl<'a> Ring<'a> {
-    /// Create a new [Ring] [Effect] with a custom [Flag].
-    pub const fn builder(flag: Flag<'a>) -> RingBuilder<'a> {
-        Self::_builder(flag)
     }
 }
 

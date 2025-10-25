@@ -1,9 +1,17 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import EnumSelect from "$lib/components/EnumSelect.svelte";
+  import { Slider } from "$lib/components/ui/slider";
   import defaultImg from "../../input.webp";
 
-  import { Flags, Effect, apply } from "pride-overlay";
+  import { Flags, applyOverlay, applyRing } from "pride-overlay";
+    import Label from "$lib/components/ui/label/label.svelte";
+    import Input from "$lib/components/ui/input/input.svelte";
+
+  enum Effect {
+    Overlay,
+    Ring
+  }
 
   // image elements
   let beforeImg!: HTMLImageElement;
@@ -12,6 +20,8 @@
   // state
   let flag = $state(Flags.Transgender);
   let effect = $state(Effect.Overlay);
+  let opacity = $state(0.5);
+  let thickness = $state(12);
 
   // reusable offscreen canvas to avoid allocations on each conversion
   const _offscreen = document.createElement("canvas");
@@ -42,10 +52,18 @@
   /**
    * Apply the given effect and flag to the before image, updating the after image.
    */
-  async function applyEffect(effect: Effect, flag: Flags): Promise<void> {
+  async function applyEffect(effect: Effect, flag: Flags, opacity: number, thickness: number): Promise<void> {
     // call pride-overlay to apply the effect
     const beforeData = await imageToUint8Array(beforeImg);
-    const afterData = apply(beforeData, effect, flag);
+    let afterData: Uint8Array;
+    switch (effect) {
+      case Effect.Overlay:
+        afterData = applyOverlay(beforeData, flag, opacity);
+        break;
+      case Effect.Ring:
+        afterData = applyRing(beforeData, flag, opacity, thickness);
+        break;
+    }
 
     // revoke previous URL to avoid leaking memory
     if (_currentObjectUrl) {
@@ -66,12 +84,17 @@
     // set the default image
     beforeImg.src = defaultImg;
     beforeImg.onload = () => {
-      applyEffect(effect, flag);
+      applyEffect(effect, flag, opacity, thickness);
     };
   });
 
   $effect(() => {
-    applyEffect(effect, flag);
+    applyEffect(effect, flag, opacity, thickness);
+  });
+
+  
+  $effect(() => {
+    if (thickness < 0) thickness = 0;
   });
 </script>
 
@@ -80,6 +103,12 @@
 <form>
   <EnumSelect label="Flag" enum={Flags} bind:value={flag} />
   <EnumSelect label="Effect" enum={Effect} bind:value={effect} />
+  <Label for="opacity" class="font-bold">Opacity</Label>
+  <Slider id="opacity" class="w-1/8" type="single" max={1} step={0.01} bind:value={opacity} />
+  {#if effect === Effect.Ring}
+      <Label for="thickness" class="font-bold">Thickness</Label>
+      <Input id="thickness" class="w-1/16" type="number" min={0} bind:value={thickness} />
+  {/if}
 </form>
 
 <div class="flex gap-24">

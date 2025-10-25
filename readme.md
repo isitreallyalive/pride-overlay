@@ -10,6 +10,7 @@
 > overlay pride flags on images
 
 [documentation](https://docs.rs/pride-overlay)
+[wasm demo](https://pride.newty.dev/)
 
 ### supported flags
 
