@@ -4,13 +4,19 @@
 |:------------------:|:--------------------------------:|:-------------------------------:|
 | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/input.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/overlay/intersex.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/ring/transgender.webp) |
 
-![Crates.io Version](https://img.shields.io/crates/v/pride-overlay?style=for-the-badge&labelColor=%23313244&color=%23e64553)
-![Crates.io Downloads](https://img.shields.io/crates/d/pride-overlay?style=for-the-badge&labelColor=%23313244&color=%23e64553&label=Downloads)
+![Crates.io Version](https://img.shields.io/crates/v/pride-overlay?style=for-the-badge&labelColor=%23313244&color=%23e64553&logo=rust)
+![Crates.io Downloads](https://img.shields.io/crates/d/pride-overlay?style=for-the-badge&labelColor=%23313244&color=%23e64553&label=Downloads&logo=rust)
+
+![npm Version](https://img.shields.io/npm/v/pride-overlay?style=for-the-badge&labelColor=%23313244&color=%23e64553&logo=npm)
+![npm Downloads](https://img.shields.io/npm/d18m/pride-overlay?style=for-the-badge&labelColor=%23313244&color=%23e64553&label=Downloads&logo=npm)
 
 > overlay pride flags on images
 
-[documentation](https://docs.rs/pride-overlay)
-[wasm demo](https://pride.newty.dev/)
+- [crates.io](https://crates.io/crates/pride-overlay)
+- [docs.rs](https://docs.rs/pride-overlay)
+- [npm](https://npm.im/pride-overlay)
+- [documentation](https://docs.rs/pride-overlay)
+- [wasm demo](https://pride.newty.dev/)
 
 ### supported flags
 
