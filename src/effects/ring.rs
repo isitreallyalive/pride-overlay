@@ -1,10 +1,11 @@
-use crate::flags::FlagOwned;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::flags::Flag;
+#[cfg(target_arch = "wasm32")]
+use crate::flags::wasm;
 use crate::{effects::overlay_flag, prelude::*};
 use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
-#[cfg(target_arch = "wasm32")]
-use std::marker::PhantomData;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
@@ -34,7 +35,7 @@ pub struct Ring {
 #[wasm_bindgen(js_name = "applyRing")]
 pub fn apply_ring(
     image: &[u8],
-    flag: crate::flags::wasm::Flag,
+    flag: wasm::Flag,
     opacity: Option<f32>,
     thickness: Option<f32>,
 ) -> Vec<u8> {
@@ -48,7 +49,7 @@ pub fn apply_ring(
 impl Effect for Ring {
     fn apply<'a, F>(&self, image: &mut image::DynamicImage, flag: F)
     where
-        F: Into<FlagOwned<'a>>,
+        F: FlagData<'a>,
     {
         if self.opacity == 0. {
             // no-op for zero opacity
@@ -57,19 +58,17 @@ impl Effect for Ring {
             let effect = Overlay::builder().opacity(self.opacity).build();
             effect.apply(image, flag)
         } else {
-            let flag = flag.into();
             let (width, height) = image.dimensions();
             #[cfg(not(target_arch = "wasm32"))]
-            let ring_flag = FlagOwned {
-                name: flag.name,
-                colours: flag.colours,
-                svg: None,
+            let ring_flag = Flag {
+                name: flag.name(),
+                colours: &flag.colours(),
+                ..Default::default()
             };
             #[cfg(target_arch = "wasm32")]
-            let ring_flag = FlagOwned {
-                colours: flag.colours,
-                svg: None,
-                _marker: PhantomData,
+            let ring_flag = wasm::CustomFlag {
+                colours: flag.colours().into(),
+                ..Default::default()
             };
             let mut ring_overlay = overlay_flag(ring_flag, width, height, self.opacity);
 

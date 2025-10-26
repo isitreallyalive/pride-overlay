@@ -16,19 +16,28 @@ pub enum SvgScaleMode {
     None,
 }
 
-/// An SVG asset to be used when rendering a pride flag.
-#[derive(Clone, Copy)]
-pub struct SvgAsset<'a> {
-    pub(crate) data: &'a [u8],
-    pub(crate) scale: SvgScaleMode,
+pub trait SvgData {
+    fn data(&self) -> &[u8];
+    fn scale(&self) -> SvgScaleMode;
 }
 
-impl<'a> SvgAsset<'a> {
-    /// Create a new [SvgAsset] from raw SVG data and a [SvgScaleMode].
-    pub const fn new(data: &'a [u8], scale: SvgScaleMode) -> Self {
-        SvgAsset { data, scale }
+#[derive(bon::Builder, Clone, Copy)]
+#[builder(const)]
+pub struct Svg<'a> {
+    /// SVG data.
+    #[builder(start_fn)]
+    data: &'a [u8],
+    /// Scaling mode for the SVG.
+    #[builder(default = SvgScaleMode::Contain)]
+    scale: SvgScaleMode,
+}
+
+impl super::SvgData for Svg<'_> {
+    fn data(&self) -> &[u8] {
+        self.data
+    }
+
+    fn scale(&self) -> SvgScaleMode {
+        self.scale
     }
 }
-
-#[cfg(not(target_arch = "wasm32"))]
-pub(crate) type SvgAssetOwned<'a> = SvgAsset<'a>;

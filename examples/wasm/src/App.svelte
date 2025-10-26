@@ -4,7 +4,7 @@
   import { Slider } from "$lib/components/ui/slider";
   import defaultImg from "../../input.webp";
 
-  import { Flags as DefaultFlags, type FlagData, type Flag, applyOverlay, applyRing } from "pride-overlay";
+  import { PresetFlag, type Flag, type CustomFlag, applyOverlay, applyRing } from "pride-overlay";
   import Label from "$lib/components/ui/label/label.svelte";
 
   enum Effect {
@@ -12,7 +12,8 @@
     Ring,
   }
 
-  const CATPPUCCIN: FlagData = {
+  const CATPPUCCIN: CustomFlag = {
+    name: "Catppuccin",
     colours: ["#ED8796", "#F5A97F", "#F5A97F", "#EED49F", "#A6DA95", "#7DC4E4", "#C6A0F6"],
   };
 
@@ -20,18 +21,18 @@
     Catppuccin
   }
 
-  const Flags = {
-    ...DefaultFlags,
+  const AllFlag = {
+    ...PresetFlag,
     ...CustomFlags
   } as const;
-  type Flags = DefaultFlags | CustomFlags;
+  type AllFlag = PresetFlag | CustomFlags;
 
   // image elements
   let beforeImg!: HTMLImageElement;
   let afterImg!: HTMLImageElement;
 
   // state
-  let flag = $state(Flags.Transgender);
+  let flag = $state(AllFlag.Transgender);
   let effect = $state(Effect.Overlay);
   let opacity = $state(0.5);
   let thickness = $state(0.1);
@@ -67,7 +68,7 @@
    */
   async function applyEffect(
     effect: Effect,
-    flag: Flags,
+    flag: AllFlag,
     opacity: number,
     thickness: number,
   ): Promise<void> {
@@ -78,9 +79,8 @@
     if (flag === CustomFlags.Catppuccin) {
       flagData = CATPPUCCIN;
     } else {
-      flagData = DefaultFlags[flag] as DefaultFlags;
+      flagData = PresetFlag[flag] as unknown as PresetFlag;
     }
-    console.log(flagData);
     switch (effect) {
       case Effect.Overlay:
         afterData = applyOverlay(beforeData, flagData, opacity);
@@ -125,7 +125,7 @@
 <h1 class="font-mono">pride-overlay</h1>
 
 <form>
-  <EnumSelect label="Flag" enum={Flags} bind:value={flag} />
+  <EnumSelect label="Flag" enum={AllFlag} bind:value={flag} />
   <EnumSelect label="Effect" enum={Effect} bind:value={effect} />
   <Label for="opacity" class="font-bold">Opacity</Label>
   <Slider

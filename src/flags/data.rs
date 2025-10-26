@@ -1,8 +1,84 @@
-use crate::{flags::Flag, prelude::*};
+use super::{Flag, Svg, SvgScaleMode};
+use crate::Colour;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
 
 // common colours
 const BLACK: Colour = Colour::hex(0x000000);
 const WHITE: Colour = Colour::hex(0xFFFFFF);
+
+macro_rules! gen_flags {
+    (
+         $(
+            $(#[doc = $doc:literal])*
+            $flag:ident
+        ),*$(,)?
+    ) => {
+        /// Built-in pride flags.
+        #[cfg_attr(target_arch = "wasm32", derive(Serialize, Deserialize))]
+        #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+        pub enum PresetFlag {
+            $(
+                #[cfg_attr(
+                    not(target_arch = "wasm32"),
+                    doc = concat!($($doc, "\n",)*)
+                )]
+                $flag,
+            )*
+        }
+
+        pastey::paste! {
+            impl PresetFlag {
+                pub const fn all() -> &'static [Flag<'static>] {
+                    &[
+                        $(
+                            [<$flag:upper>],
+                        )*
+                    ]
+                }
+            }
+
+            impl From<&PresetFlag> for Flag<'static> {
+                fn from(flag: &PresetFlag) -> Self {
+                    match flag {
+                        $(
+                            PresetFlag::$flag => [<$flag:upper>].into(),
+                        )*
+                    }
+                }
+            }
+        }
+    };
+}
+
+gen_flags! {
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/agender.svg" width="128" />
+    Agender,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/aromantic.svg" width="128" />
+    Aromantic,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/asexual.svg" width="128" />
+    Asexual,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/bisexual.svg" width="128" />
+    Bisexual,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/genderfluid.svg" width="128" />
+    Genderfluid,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/genderqueer.svg" width="128" />
+    Genderqueer,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/intersex.svg" width="128" />
+    Intersex,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/lesbian.svg" width="128" />
+    Lesbian,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/nonbinary.svg" width="128" />
+    Nonbinary,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/pansexual.svg" width="128" />
+    Pansexual,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/polyamory.svg" width="128" />
+    Polyamory,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/rainbow.svg" width="128" />
+    Rainbow,
+    /// <img src="https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/flags/transgender.svg" width="128" />
+    Transgender,
+}
 
 pub(crate) const AGENDER: Flag = Flag::builder(
     "Agender",
@@ -82,10 +158,11 @@ pub(crate) const INTERSEX: Flag = Flag::builder(
         Colour::hex(0x7902AA), // dark purple
     ],
 )
-.svg(SvgAsset::new(
-    include_bytes!("svg/intersex.svg"),
-    SvgScaleMode::Cover,
-))
+.svg(
+    Svg::builder(include_bytes!("svg/intersex.svg"))
+        .scale(SvgScaleMode::Cover)
+        .build(),
+)
 .build();
 
 pub(crate) const LESBIAN: Flag = Flag::builder(
@@ -129,10 +206,11 @@ pub(crate) const POLYAMORY: Flag = Flag::builder(
         Colour::hex(0x340C46), // dark purple
     ],
 )
-.svg(SvgAsset::new(
-    include_bytes!("svg/polyamory.svg"),
-    SvgScaleMode::Stretch,
-))
+.svg(
+    Svg::builder(include_bytes!("svg/polyamory.svg"))
+        .scale(SvgScaleMode::Cover)
+        .build(),
+)
 .build();
 
 pub(crate) const RAINBOW: Flag = Flag::builder(

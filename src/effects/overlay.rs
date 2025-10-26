@@ -1,5 +1,8 @@
-use crate::flags::{FlagOwned, SvgAssetOwned};
-use crate::prelude::*;
+use super::Effect;
+use crate::Colour;
+#[cfg(target_arch = "wasm32")]
+use crate::flags::wasm;
+use crate::flags::{FlagData, SvgData, SvgScaleMode};
 use image::GenericImageView;
 use image::{ImageBuffer, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_filled_rect_mut, rect::Rect};
@@ -28,7 +31,7 @@ pub struct Overlay {
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(js_name = "applyOverlay")]
-pub fn apply_overlay(image: &[u8], flag: crate::flags::wasm::Flag, opacity: Option<f32>) -> Vec<u8> {
+pub fn apply_overlay(image: &[u8], flag: wasm::Flag, opacity: Option<f32>) -> Vec<u8> {
     let effect = Overlay::builder()
         .opacity(opacity.unwrap_or(DEFAULT_OPACITY))
         .build();
@@ -38,55 +41,44 @@ pub fn apply_overlay(image: &[u8], flag: crate::flags::wasm::Flag, opacity: Opti
 impl Effect for Overlay {
     fn apply<'a, F>(&self, image: &mut image::DynamicImage, flag: F)
     where
-        F: Into<FlagOwned<'a>>,
+        F: FlagData<'a>,
     {
         if self.opacity == 0. {
             // no-op for zero opacity
         } else {
             let (width, height) = image.dimensions();
-            let flag_overlay = overlay_flag(flag.into(), width, height, self.opacity);
+            let flag_overlay = overlay_flag(flag, width, height, self.opacity);
             overlay(image, &flag_overlay, 0, 0);
         }
     }
 }
 
-pub(crate) fn overlay_flag(flag: FlagOwned, width: u32, height: u32, opacity: f32) -> RgbaImage {
+pub(crate) fn overlay_flag<'a, F: FlagData<'a>>(
+    flag: F,
+    width: u32,
+    height: u32,
+    opacity: f32,
+) -> RgbaImage {
     let alpha = (opacity * u8::MAX as f32) as u8;
 
-    match flag.svg {
+    match flag.svg() {
         Some(svg) => overlay_svg(svg, width, height, alpha),
-        None => {
-            #[cfg(target_arch = "wasm32")]
-            {
-                overlay_colours(&flag.colours, width, height, alpha)
-            }
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                overlay_colours(flag.colours, width, height, alpha)
-            }
-        }
+        None => overlay_colours(&flag.colours(), width, height, alpha),
     }
 }
 
-fn overlay_svg(
-    SvgAssetOwned {
-        data, scale: mode, ..
-    }: SvgAssetOwned,
-    width: u32,
-    height: u32,
-    alpha: u8,
-) -> RgbaImage {
+fn overlay_svg<'a>(svg: Box<dyn SvgData + 'a>, width: u32, height: u32, alpha: u8) -> RgbaImage {
     #[cfg(target_arch = "wasm32")]
-    let tree = Tree::from_data(&data, &usvg::Options::default()).unwrap();
+    let tree = Tree::from_data(&svg.data(), &usvg::Options::default()).unwrap();
     #[cfg(not(target_arch = "wasm32"))]
-    let tree = Tree::from_data(data, &usvg::Options::default()).unwrap();
+    let tree = Tree::from_data(&svg.data(), &usvg::Options::default()).unwrap();
     let mut pixmap = Pixmap::new(width, height).unwrap();
 
     let size = tree.size();
     let scale_x = width as f32 / size.width();
     let scale_y = height as f32 / size.height();
 
-    let transform = match mode {
+    let transform = match svg.scale() {
         SvgScaleMode::Contain => {
             let scale = scale_x.min(scale_y);
             Transform::from_scale(scale, scale).post_translate(

@@ -10,13 +10,13 @@
 //! | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/input.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/overlay/intersex.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/ring/transgender.webp) |
 //!
 //! # High level API
-//! Load an image with the [`image`](https://docs.rs/image) crate, and [Overlay](effects::Overlay) the [Transgender](flags::Flags::Transgender) flag with 40% [Opacity].
+//! Load an image with the [`image`](https://docs.rs/image) crate, and [Overlay](effects::Overlay) the [Transgender](flags::PresetFlag::Transgender) flag with 40% [Opacity].
 //!
 //! ```rust
 //! use pride_overlay::prelude::*;
 //!
 //! let mut image = image::open("path/to/image.webp")?;
-//! let effect = Overlay::builder(Flags::Transgender).opacity(Opacity::new(0.4)).build();
+//! let effect = Overlay::builder(PresetFlag::Transgender).opacity(Opacity::new(0.4)).build();
 //! effect.apply(&mut image);
 //! ```
 
@@ -45,7 +45,7 @@ pub mod prelude {
     pub use crate::{
         Colour,
         effects::{Effect, Overlay, Ring},
-        flags::{Flags, SvgAsset, SvgScaleMode},
+        flags::{Flag, FlagData, PresetFlag, Svg, SvgData, SvgScaleMode},
     };
 }
 

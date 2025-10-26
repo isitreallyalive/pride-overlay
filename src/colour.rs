@@ -15,15 +15,9 @@ impl Colour {
         let b = (hex & 0xFF) as u8;
         Colour(r, g, b)
     }
-
-    #[cfg(target_arch = "wasm32")]
-    fn from_hex_str(s: &str) -> Result<Self, std::num::ParseIntError> {
-        let s = s.trim_start_matches('#');
-        let hex = u32::from_str_radix(s, 16)?;
-        Ok(Self::hex(hex))
-    }
 }
 
+// deserialize hex strings
 #[cfg(target_arch = "wasm32")]
 impl<'de> serde::Deserialize<'de> for Colour {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -31,7 +25,9 @@ impl<'de> serde::Deserialize<'de> for Colour {
         D: serde::Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        Colour::from_hex_str(&s).map_err(serde::de::Error::custom)
+        let s = s.trim_start_matches('#');
+        let hex = u32::from_str_radix(s, 16).map_err(serde::de::Error::custom)?;
+        Ok(Self::hex(hex))
     }
 }
 
