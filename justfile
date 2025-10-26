@@ -10,6 +10,10 @@
     cargo doc
     miniserve target/doc
 
+@clippy:
+    cargo clippy
+    cargo clippy --target wasm32-unknown-unknown
+
 wasm: wasm-build wasm-dev
 
 @wasm-build:

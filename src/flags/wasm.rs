@@ -36,7 +36,9 @@ impl<'de> serde::Deserialize<'de> for Flag {
             {
                 let max = PresetFlag::max_discriminant();
                 if num <= max {
-                    Ok(Flag::Preset(unsafe { std::mem::transmute::<u8, PresetFlag>(num) }))
+                    Ok(Flag::Preset(unsafe {
+                        std::mem::transmute::<u8, PresetFlag>(num)
+                    }))
                 } else {
                     Err(E::custom("invalid preset index"))
                 }

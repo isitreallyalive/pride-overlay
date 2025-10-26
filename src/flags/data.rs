@@ -28,7 +28,9 @@ macro_rules! gen_flags {
             )*
         }
 
+        #[cfg(target_arch = "wasm32")]
         impl PresetFlag {
+            /// Maximum discriminant value for [PresetFlag].
             pub(crate) const fn max_discriminant() -> u8 {
                 let mut max = 0;
                 $(

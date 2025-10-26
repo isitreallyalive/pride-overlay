@@ -1,7 +1,5 @@
 use super::Effect;
 use crate::Colour;
-#[cfg(target_arch = "wasm32")]
-use crate::flags::wasm;
 use crate::flags::{FlagData, SvgData, SvgScaleMode};
 use image::GenericImageView;
 use image::{ImageBuffer, Rgba, RgbaImage, imageops::overlay};
@@ -10,10 +8,6 @@ use resvg::{
     tiny_skia::{Pixmap, Transform},
     usvg::{self, Tree},
 };
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen::prelude::*;
-
-const DEFAULT_OPACITY: f32 = 0.5;
 
 /// Effect that overlays a [Flag](crate::flags::Flag) onto an image.
 #[derive(bon::Builder)]
@@ -25,17 +19,13 @@ const DEFAULT_OPACITY: f32 = 0.5;
 )]
 pub struct Overlay {
     /// Opacity of the overlay, from 0.0 (transparent) to 1.0 (opaque).
-    #[builder(default = DEFAULT_OPACITY, with = |percent: f32| percent.clamp(0., 1.))]
+    #[builder(default = Overlay::DEFAULT_OPACITY, with = |percent: f32| percent.clamp(0., 1.))]
     opacity: f32,
 }
 
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(js_name = "applyOverlay")]
-pub fn apply_overlay(image: &[u8], flag: wasm::Flag, opacity: Option<f32>) -> Vec<u8> {
-    let effect = Overlay::builder()
-        .opacity(opacity.unwrap_or(DEFAULT_OPACITY))
-        .build();
-    super::apply(image, flag, effect).unwrap()
+impl Overlay {
+    /// Default opacity for the [Overlay] effect.
+    pub const DEFAULT_OPACITY: f32 = 0.5;
 }
 
 impl Effect for Overlay {
@@ -63,7 +53,7 @@ pub(crate) fn overlay_flag<F: FlagData>(
 
     match flag.svg() {
         Some(svg) => overlay_svg(svg, width, height, alpha),
-        None => overlay_colours(&flag.colours(), width, height, alpha),
+        None => overlay_colours(flag.colours(), width, height, alpha),
     }
 }
 

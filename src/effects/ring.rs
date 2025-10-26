@@ -1,16 +1,11 @@
 #[cfg(not(target_arch = "wasm32"))]
 use crate::flags::Flag;
 #[cfg(target_arch = "wasm32")]
-use crate::flags::wasm;
+use crate::flags::wasm::CustomFlag;
 use crate::{effects::overlay_flag, prelude::*};
 use core::f32::consts::PI;
 use image::{GenericImageView, Rgba, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_antialiased_polygon_mut, pixelops::interpolate, point::Point};
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen::prelude::*;
-
-const DEFAULT_OPACITY: f32 = 1.;
-const DEFAULT_THICKNESS: f32 = 0.1;
 
 /// Effect that draws a ring around an image using pride [Flag] colors.
 #[derive(bon::Builder)]
@@ -22,28 +17,21 @@ const DEFAULT_THICKNESS: f32 = 0.1;
 )]
 pub struct Ring {
     /// Opacity of the ring, from 0.0 (transparent) to 1.0 (opaque).
-    #[builder(default = DEFAULT_OPACITY, with = |percent: f32| percent.clamp(0., 1.))]
+    #[builder(default = Ring::DEFAULT_OPACITY, with = |percent: f32| percent.clamp(0., 1.))]
     opacity: f32,
     /// Thickness of the ring as a percentage of the image width, from 0.0 to 1.0.
     ///
     /// You probably want this to be fairly small!
-    #[builder(default = DEFAULT_THICKNESS, with = |percent: f32| percent.clamp(0., 1.))]
+    #[builder(default = Ring::DEFAULT_THICKNESS, with = |percent: f32| percent.clamp(0., 1.))]
     thickness: f32,
 }
 
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(js_name = "applyRing")]
-pub fn apply_ring(
-    image: &[u8],
-    flag: wasm::Flag,
-    opacity: Option<f32>,
-    thickness: Option<f32>,
-) -> Vec<u8> {
-    let effect = Ring::builder()
-        .opacity(opacity.unwrap_or(DEFAULT_OPACITY))
-        .thickness(thickness.unwrap_or(DEFAULT_THICKNESS))
-        .build();
-    super::apply(image, flag, effect).unwrap()
+impl Ring {
+    /// Default opacity for the [Ring] effect.
+    pub const DEFAULT_OPACITY: f32 = 1.;
+
+    /// Default thickness for the [Ring] effect.
+    pub const DEFAULT_THICKNESS: f32 = 0.1;
 }
 
 impl Effect for Ring {
@@ -62,11 +50,11 @@ impl Effect for Ring {
             #[cfg(not(target_arch = "wasm32"))]
             let ring_flag = Flag {
                 name: flag.name(),
-                colours: &flag.colours(),
+                colours: flag.colours(),
                 ..Default::default()
             };
             #[cfg(target_arch = "wasm32")]
-            let ring_flag = wasm::CustomFlag {
+            let ring_flag = CustomFlag {
                 colours: flag.colours().into(),
                 ..Default::default()
             };
