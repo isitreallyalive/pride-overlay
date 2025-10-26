@@ -874,7 +874,7 @@ dependencies = [
 
 [[package]]
 name = "pride-overlay"
-version = "2.1.0"
+version = "3.0.0"
 dependencies = [
  "bon",
  "console_error_panic_hook",

@@ -1,7 +1,7 @@
 [package]
 name = "pride-overlay"
 description = "overlay pride flags on images"
-version = "2.1.0"
+version = "3.0.0"
 edition = "2024"
 
 authors = ["newt <hi@newty.dev>"]
@@ -11,6 +11,7 @@ categories = ["graphics", "multimedia::images"]
 repository = "https://github.com/isitreallyalive/pride-overlay"
 readme = "readme.md"
 license-file = "license.md"
+include = ["**/*.rs", "src/flags/svg/*.svg"]
 
 [features]
 default = ["rayon"]
@@ -27,7 +28,7 @@ pastey = { version = "0.1.1", default-features = false }
 resvg = { version = "0.45.1", default-features = false }
 
 [dev-dependencies]
-image = { version = "0.25.8", features = ["png", "webp"] }
+image = { version = "0.25.8", features = ["webp"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = { version = "0.1.7", default-features = false }

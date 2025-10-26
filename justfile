@@ -1,10 +1,10 @@
 @clean:
     rm -rf examples/out/**/*.webp
 
-@examples: clean
-    cargo r --example overlay
-    cargo r --example ring
-    cargo r --example custom
+@examples *args: clean
+    cargo r --example custom {{args}}
+    cargo r --example overlay {{args}}
+    cargo r --example ring {{args}}
 
 @doc:
     cargo doc
@@ -16,8 +16,8 @@
 
 wasm: wasm-build wasm-dev
 
-@wasm-build:
-    wasm-pack build
+@wasm-build *args:
+    wasm-pack build {{args}}
 
 @wasm-dev:
     cd examples/wasm && bun dev

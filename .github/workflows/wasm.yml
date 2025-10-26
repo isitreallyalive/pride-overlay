@@ -42,7 +42,7 @@ jobs:
 
       - name: Build Rust WASM
         run: |
-          wasm-pack build
+          wasm-pack build --release
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
