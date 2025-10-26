@@ -17,6 +17,7 @@ macro_rules! gen_flags {
         /// Built-in pride flags.
         #[cfg_attr(target_arch = "wasm32", derive(Serialize, Deserialize))]
         #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+        #[repr(u8)]
         pub enum PresetFlag {
             $(
                 #[cfg_attr(
@@ -25,6 +26,31 @@ macro_rules! gen_flags {
                 )]
                 $flag,
             )*
+        }
+
+        impl PresetFlag {
+            pub(crate) const fn max_discriminant() -> u8 {
+                let mut max = 0;
+                $(
+                    if PresetFlag::$flag as u8 > max {
+                        max = PresetFlag::$flag as u8;
+                    }
+                )*
+                max
+            }
+        }
+
+        impl std::str::FromStr for PresetFlag {
+            type Err = ();
+
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                match s {
+                    $(
+                        stringify!($flag) => Ok(PresetFlag::$flag),
+                    )*
+                    _ => Err(()),
+                }
+            }
         }
 
         pastey::paste! {
@@ -38,11 +64,13 @@ macro_rules! gen_flags {
                 }
             }
 
-            impl From<&PresetFlag> for Flag<'static> {
-                fn from(flag: &PresetFlag) -> Self {
-                    match flag {
+            impl std::ops::Deref for PresetFlag {
+                type Target = Flag<'static>;
+
+                fn deref(&self) -> &Self::Target {
+                    match self {
                         $(
-                            PresetFlag::$flag => [<$flag:upper>].into(),
+                            PresetFlag::$flag => &[<$flag:upper>],
                         )*
                     }
                 }

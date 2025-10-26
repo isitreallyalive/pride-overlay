@@ -1,132 +1,67 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import EnumSelect from "$lib/components/EnumSelect.svelte";
   import { Slider } from "$lib/components/ui/slider";
-  import defaultImg from "../../input.webp";
-
-  import { PresetFlag, type Flag, type CustomFlag, applyOverlay, applyRing } from "pride-overlay";
   import Label from "$lib/components/ui/label/label.svelte";
+  import { AllFlag, CATPPUCCIN } from "$lib/flag";
+  import defaultImg from "../../input.webp";
+  import {
+    applyOverlay,
+    applyRing,
+    type Flag,
+    PresetFlag,
+  } from "pride-overlay";
 
-  enum Effect {
+  enum EffectType {
     Overlay,
     Ring,
   }
 
-  const CATPPUCCIN: CustomFlag = {
-    name: "Catppuccin",
-    colours: ["#ED8796", "#F5A97F", "#F5A97F", "#EED49F", "#A6DA95", "#7DC4E4", "#C6A0F6"],
-  };
-
-  enum CustomFlags {
-    Catppuccin
-  }
-
-  const AllFlag = {
-    ...PresetFlag,
-    ...CustomFlags
-  } as const;
-  type AllFlag = PresetFlag | CustomFlags;
-
-  // image elements
-  let beforeImg!: HTMLImageElement;
-  let afterImg!: HTMLImageElement;
-
   // state
-  let flag = $state(AllFlag.Transgender);
-  let effect = $state(Effect.Overlay);
+  let flag: AllFlag = $state(AllFlag.Transgender);
+  let effect = $state(EffectType.Overlay);
   let opacity = $state(0.5);
   let thickness = $state(0.1);
 
-  // reusable offscreen canvas to avoid allocations on each conversion
-  const _offscreen = document.createElement("canvas");
-  const _ctx = _offscreen.getContext("2d");
+  let inputBuffer = $state(
+    await fetch(defaultImg)
+      .then((res) => res.arrayBuffer())
+      .then((buf) => new Uint8Array(buf)),
+  );
+  let inputUrl = $derived(URL.createObjectURL(new Blob([inputBuffer])));
 
-  /**
-   * Convert an HTMLImageElement into encoded image bytes (Uint8Array).
-   */
-  async function imageToUint8Array(img: HTMLImageElement): Promise<Uint8Array> {
-    _offscreen.width = img.naturalWidth;
-    _offscreen.height = img.naturalHeight;
+  let outputData = $derived(applyEffect(inputBuffer));
+  let outputUrl = $derived(URL.createObjectURL(outputData));
 
-    _ctx!.clearRect(0, 0, _offscreen.width, _offscreen.height);
-    _ctx!.drawImage(img, 0, 0);
-
-    const blob: Blob | null = await new Promise((resolve) =>
-      _offscreen.toBlob(resolve, "image/png"),
-    );
-    if (!blob) throw new Error("failed to encode image to blob");
-
-    const arrayBuffer = await blob.arrayBuffer();
-    return new Uint8Array(arrayBuffer);
-  }
-
-  // keep track of the last object URL so we can revoke it when replaced
-  let _currentObjectUrl: string | null = null;
-
-  /**
-   * Apply the given effect and flag to the before image, updating the after image.
-   */
-  async function applyEffect(
-    effect: Effect,
-    flag: AllFlag,
-    opacity: number,
-    thickness: number,
-  ): Promise<void> {
-    // call pride-overlay to apply the effect
-    const beforeData = await imageToUint8Array(beforeImg);
-    let afterData: Uint8Array;
+  function applyEffect(inputData: Uint8Array) {
     let flagData: Flag;
-    if (flag === CustomFlags.Catppuccin) {
-      flagData = CATPPUCCIN;
-    } else {
-      flagData = PresetFlag[flag] as unknown as PresetFlag;
+    switch (flag) {
+      case AllFlag.Catppuccin:
+        flagData = CATPPUCCIN;
+        break;
+      default:
+        flagData = flag;
+        break;
     }
+
+    let out: Uint8Array;
     switch (effect) {
-      case Effect.Overlay:
-        afterData = applyOverlay(beforeData, flagData, opacity);
+      case EffectType.Overlay:
+        out = applyOverlay(inputData, flagData, opacity);
         break;
-      case Effect.Ring:
-        afterData = applyRing(beforeData, flagData, opacity, thickness);
+      case EffectType.Ring:
+        out = applyRing(inputData, flagData, opacity, thickness);
         break;
     }
 
-    // revoke previous URL to avoid leaking memory
-    if (_currentObjectUrl) {
-      URL.revokeObjectURL(_currentObjectUrl);
-      _currentObjectUrl = null;
-    }
-
-    // update the after image
-    const blob = new Blob([afterData.buffer as ArrayBuffer], {
-      type: "image/png",
-    });
-    const url = URL.createObjectURL(blob);
-    _currentObjectUrl = url;
-    afterImg.src = url;
+    return new Blob([new Uint8Array(out.buffer as ArrayBuffer)])
   }
-
-  onMount(async () => {
-    // set the default image
-    beforeImg.src = defaultImg;
-    beforeImg.onload = () => {
-      applyEffect(effect, flag, opacity, thickness);
-    };
-  });
-
-  $effect(() => {
-    applyEffect(effect, flag, opacity, thickness);
-  });
-
-  $effect(() => {
-    if (thickness < 0) thickness = 0;
-  });
 </script>
 
 <h1 class="font-mono">pride-overlay</h1>
 
 <form>
   <EnumSelect label="Flag" enum={AllFlag} bind:value={flag} />
-  <EnumSelect label="Effect" enum={Effect} bind:value={effect} />
+  <EnumSelect label="Effect" enum={EffectType} bind:value={effect} />
   <Label for="opacity" class="font-bold">Opacity</Label>
   <Slider
     id="opacity"
@@ -136,7 +71,7 @@
     step={0.01}
     bind:value={opacity}
   />
-  {#if effect === Effect.Ring}
+  {#if effect === EffectType.Ring}
     <Label for="thickness" class="font-bold">Thickness</Label>
     <Slider
       id="thickness"
@@ -144,17 +79,18 @@
       type="single"
       max={1}
       step={0.01}
-      bind:value={thickness} />
+      bind:value={thickness}
+    />
   {/if}
 </form>
 
 <div class="flex gap-24">
   <div class="text-center">
-    <h2>Before</h2>
-    <img bind:this={beforeImg} alt="" height={128} />
+    <h2>Input</h2>
+    <img src={inputUrl} alt="" height={128} />
   </div>
   <div class="text-center">
-    <h2>After</h2>
-    <img bind:this={afterImg} alt="" height={128} />
+    <h2>Output</h2>
+    <img src={outputUrl} alt="" height={128} />
   </div>
 </div>

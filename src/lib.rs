@@ -10,7 +10,7 @@
 //! | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/input.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/overlay/intersex.webp) | ![](https://raw.githubusercontent.com/isitreallyalive/pride-overlay/refs/heads/main/examples/out/ring/transgender.webp) |
 //!
 //! # High level API
-//! Load an image with the [`image`](https://docs.rs/image) crate, and [Overlay](effects::Overlay) the [Transgender](flags::PresetFlag::Transgender) flag with 40% [Opacity].
+//! Load an image with the [`image`](https://docs.rs/image) crate, and [Overlay](effects::Overlay) the [Transgender](flags::PresetFlag::Transgender) flag with 40% opacity.
 //!
 //! ```rust
 //! use pride_overlay::prelude::*;
@@ -51,6 +51,7 @@ pub mod prelude {
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
+#[doc(hidden)]
 pub fn init() {
     // panic to the console
     console_error_panic_hook::set_once();

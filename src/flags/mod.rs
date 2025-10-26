@@ -9,15 +9,21 @@ pub use data::PresetFlag;
 mod svg;
 pub use svg::{Svg, SvgData, SvgScaleMode};
 
-/// A pride flag.
-pub trait FlagData<'a> {
+/// Get information about a pride flag.
+pub trait FlagData {
     fn name(&self) -> &str;
-    fn colours(&self) -> Box<[Colour]>;
-    fn svg(&self) -> Option<Box<dyn SvgData + 'a>>;
+    fn colours(&self) -> &[Colour];
+    fn svg(&self) -> Option<&dyn SvgData>;
 }
 
+/// A pride flag.
 #[derive(bon::Builder, Clone, Copy, Default)]
-#[builder(const)]
+#[builder(
+    const,
+    builder_type(doc {
+        /// Builder for the [Flag] struct.
+    })
+)]
 pub struct Flag<'a> {
     #[builder(start_fn)]
     /// Name of the flag.
@@ -25,21 +31,20 @@ pub struct Flag<'a> {
     /// Colours that make up the flag.
     #[builder(start_fn)]
     pub(crate) colours: &'a [Colour],
+    /// Optional SVG representation of the flag.
     pub(crate) svg: Option<svg::Svg<'a>>,
 }
 
-impl<'a> FlagData<'a> for Flag<'a> {
+impl<'a> FlagData for Flag<'a> {
     fn name(&self) -> &str {
         self.name
     }
 
-    fn colours(&self) -> Box<[Colour]> {
-        self.colours.to_vec().into_boxed_slice()
+    fn colours(&self) -> &[Colour] {
+        self.colours
     }
 
-    fn svg(&self) -> Option<Box<dyn SvgData + 'a>> {
-        self.svg
-            .clone()
-            .map(|svg| Box::new(svg) as Box<dyn SvgData>)
+    fn svg(&self) -> Option<&dyn SvgData> {
+        self.svg.as_ref().map(|svg| svg as &dyn SvgData)
     }
 }

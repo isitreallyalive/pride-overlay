@@ -15,7 +15,7 @@ use wasm_bindgen::prelude::*;
 
 const DEFAULT_OPACITY: f32 = 0.5;
 
-/// Effect that overlays a pride [Flag] onto an image.
+/// Effect that overlays a [Flag](crate::flags::Flag) onto an image.
 #[derive(bon::Builder)]
 #[builder(
     const,
@@ -39,9 +39,9 @@ pub fn apply_overlay(image: &[u8], flag: wasm::Flag, opacity: Option<f32>) -> Ve
 }
 
 impl Effect for Overlay {
-    fn apply<'a, F>(&self, image: &mut image::DynamicImage, flag: F)
+    fn apply<F>(&self, image: &mut image::DynamicImage, flag: F)
     where
-        F: FlagData<'a>,
+        F: FlagData,
     {
         if self.opacity == 0. {
             // no-op for zero opacity
@@ -53,7 +53,7 @@ impl Effect for Overlay {
     }
 }
 
-pub(crate) fn overlay_flag<'a, F: FlagData<'a>>(
+pub(crate) fn overlay_flag<F: FlagData>(
     flag: F,
     width: u32,
     height: u32,
@@ -67,11 +67,11 @@ pub(crate) fn overlay_flag<'a, F: FlagData<'a>>(
     }
 }
 
-fn overlay_svg<'a>(svg: Box<dyn SvgData + 'a>, width: u32, height: u32, alpha: u8) -> RgbaImage {
+fn overlay_svg(svg: &dyn SvgData, width: u32, height: u32, alpha: u8) -> RgbaImage {
     #[cfg(target_arch = "wasm32")]
-    let tree = Tree::from_data(&svg.data(), &usvg::Options::default()).unwrap();
+    let tree = Tree::from_data(svg.data(), &usvg::Options::default()).unwrap();
     #[cfg(not(target_arch = "wasm32"))]
-    let tree = Tree::from_data(&svg.data(), &usvg::Options::default()).unwrap();
+    let tree = Tree::from_data(svg.data(), &usvg::Options::default()).unwrap();
     let mut pixmap = Pixmap::new(width, height).unwrap();
 
     let size = tree.size();

@@ -47,13 +47,13 @@ pub fn apply_ring(
 }
 
 impl Effect for Ring {
-    fn apply<'a, F>(&self, image: &mut image::DynamicImage, flag: F)
+    fn apply<F>(&self, image: &mut image::DynamicImage, flag: F)
     where
-        F: FlagData<'a>,
+        F: FlagData,
     {
         if self.opacity == 0. {
             // no-op for zero opacity
-        } else if self.thickness == 1. {
+        } else if self.thickness >= 0.99 {
             // full thickness is just an overlay
             let effect = Overlay::builder().opacity(self.opacity).build();
             effect.apply(image, flag)
@@ -76,31 +76,30 @@ impl Effect for Ring {
             let radius =
                 (width / 2).saturating_sub(((width / 2) as f32 * self.thickness) as u32) as i32;
 
-            draw_circle(&mut ring_overlay, center, radius, Rgba([0, 0, 0, 0]));
+            draw_circle(&mut ring_overlay, center, radius as f32, Rgba([0, 0, 0, 0]));
             overlay(image, &ring_overlay, 0, 0);
         }
     }
 }
 
 /// Draws a smooth circle on the image using anti-aliasing.
-fn draw_circle(image: &mut RgbaImage, center: (i32, i32), radius: i32, color: Rgba<u8>) {
+fn draw_circle(image: &mut RgbaImage, center: (i32, i32), radius: f32, color: Rgba<u8>) {
     const MIN_SIDES: f32 = 32.;
     const MAX_SIDES: f32 = 256.;
     const PIXELS_PER_SIDE: f32 = 4.;
 
     // determine the number of sides to use for a the polygon
     // that approximates the circle.
-    // circumference = 2 * pi * radius
-    let circumference = 2.0 * PI * radius as f32;
-    let sides = (circumference / PIXELS_PER_SIDE).clamp(MIN_SIDES, MAX_SIDES) as usize;
+    let circumference = 2.0 * PI * radius;
+    let sides = (circumference / PIXELS_PER_SIDE).clamp(MIN_SIDES, MAX_SIDES);
 
     // compute the points of the polygon
-    let points: Vec<Point<i32>> = (0..sides)
+    let points: Vec<Point<i32>> = (0..(sides as usize))
         .map(|i| {
-            let theta = 2.0 * PI * (i as f32) / (sides as f32);
+            let theta = 2.0 * PI * (i as f32) / sides;
             let (x, y) = center;
-            let dx = radius as f32 * theta.cos();
-            let dy = radius as f32 * theta.sin();
+            let dx = radius * theta.cos();
+            let dy = radius * theta.sin();
             Point::new(x + dx.round() as i32, y + dy.round() as i32)
         })
         .collect();

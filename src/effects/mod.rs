@@ -8,8 +8,9 @@ pub use overlay::*;
 mod ring;
 pub use ring::*;
 
+/// An effect that can be applied to an image.
 pub trait Effect {
-    fn apply<'a, F: FlagData<'a>>(&self, image: &mut image::DynamicImage, flag: F);
+    fn apply<F: FlagData>(&self, image: &mut image::DynamicImage, flag: F);
 }
 
 /// Apply an effect to an image.

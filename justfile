@@ -10,8 +10,14 @@
     cargo doc
     miniserve target/doc
 
+wasm: wasm-build wasm-dev
+
 @wasm-build:
     wasm-pack build
 
 @wasm-dev:
     cd examples/wasm && bun dev
+
+@wasm-doc:
+    cargo doc --target wasm32-unknown-unknown
+    miniserve target/wasm32-unknown-unknown/doc
