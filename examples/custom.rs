@@ -1,6 +1,10 @@
 use image::ImageResult;
 use pride_overlay::{flags::Flag, prelude::*};
 
+use crate::helpers::run;
+
+mod helpers;
+
 /// https://catppuccin.com/palette
 const CATPPUCCIN: Flag = Flag::builder(
     "Catppuccin",
@@ -19,9 +23,6 @@ const CATPPUCCIN: Flag = Flag::builder(
 const EFFECT: Ring = Ring::builder().opacity(0.8).build();
 
 fn main() -> ImageResult<()> {
-    let mut image = image::open("examples/input.webp")?;
-    EFFECT.apply(&mut image, CATPPUCCIN);
-    image.save("examples/out/custom.webp")?;
-
-    Ok(())
+    run("input.webp", EFFECT, CATPPUCCIN, "custom.webp")?;
+    run("input.gif", EFFECT, CATPPUCCIN, "custom.gif")
 }

@@ -17,7 +17,7 @@
 wasm: wasm-build wasm-dev
 
 @wasm-build *args:
-    wasm-pack build {{args}}
+    wasm-pack build --target web {{args}}
 
 @wasm-dev:
     cd examples/wasm && bun dev

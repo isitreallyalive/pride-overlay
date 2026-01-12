@@ -997,6 +997,7 @@ version = "3.0.1"
 dependencies = [
  "bon",
  "console_error_panic_hook",
+ "gif",
  "image",
  "imageproc",
  "paste",
