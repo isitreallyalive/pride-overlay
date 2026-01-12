@@ -55,7 +55,7 @@ macro_rules! gen_flags {
             }
         }
 
-        pastey::paste! {
+        paste::paste! {
             impl PresetFlag {
                 pub const fn all() -> &'static [Flag<'static>] {
                     &[
