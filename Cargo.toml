@@ -11,3 +11,15 @@ categories = ["graphics", "multimedia::images"]
 repository = "https://github.com/isitreallyalive/pride-overlay"
 readme = "readme.md"
 license-file = "license.md"
+
+[features]
+# todo: format features
+gif = ["image/gif"]
+webp = ["image/webp"]
+
+[dependencies]
+image = { version = "0.25.9", default-features = false }
+thiserror = "2.0.17"
+
+[dev-dependencies]
+image = { version = "0.25.9", features = ["gif", "webp"], default-features = false }
