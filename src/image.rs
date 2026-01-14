@@ -1,13 +1,12 @@
 #[cfg(feature = "gif")]
-use image::{AnimationDecoder, codecs::gif::GifDecoder};
+use image::{AnimationDecoder, Frame, codecs::gif::GifDecoder};
 use image::{DynamicImage, ImageFormat};
-#[cfg(feature = "gif")]
 use std::io::Cursor;
 
 pub enum Image {
     Static(DynamicImage),
     #[cfg(feature = "gif")]
-    Animated(Vec<DynamicImage>),
+    Animated(Vec<Frame>),
 }
 
 impl Image {
@@ -19,12 +18,10 @@ impl Image {
             ImageFormat::Gif => {
                 // decode gifs into frames
                 let decoder = GifDecoder::new(Cursor::new(data))?;
-                let frames = decoder
+                let frames: Vec<_> = decoder
                     .into_frames()
-                    .collect::<Result<Vec<_>, _>>()?
-                    .into_iter()
-                    .map(|frame| DynamicImage::ImageRgba8(frame.into_buffer()))
-                    .collect::<Vec<_>>();
+                    .collect::<Result<Vec<_>, _>>()?;
+                println!("Decoded {} frames from GIF", frames.len());
                 Image::Animated(frames)
             }
             _ => {
@@ -34,6 +31,29 @@ impl Image {
         };
 
         Ok(image)
+    }
+
+    pub fn to_bytes(&self, format: ImageFormat) -> Result<Vec<u8>, crate::PrideError> {
+        let mut buf = Cursor::new(Vec::new());
+        match self {
+            Image::Static(img) => {
+                img.write_to(&mut buf, format)?;
+                Ok(buf.into_inner())
+            }
+            #[cfg(feature = "gif")]
+            Image::Animated(frames) => {
+                use image::codecs::gif::GifEncoder;
+
+                // todo: make speed customisable
+                let mut encoder = GifEncoder::new_with_speed(&mut buf, 1);
+                for frame in frames {
+                    encoder.encode_frame(frame.clone())?;
+                }
+                drop(encoder);
+
+                Ok(buf.into_inner())
+            }
+        }
     }
 }
 
