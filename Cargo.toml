@@ -1,7 +1,7 @@
 [package]
 name = "pride-overlay"
 description = "overlay pride flags on images"
-version = "3.0.1"
+version = "4.0.0"
 edition = "2024"
 
 authors = ["newt <hi@newty.dev>"]
@@ -11,50 +11,3 @@ categories = ["graphics", "multimedia::images"]
 repository = "https://github.com/isitreallyalive/pride-overlay"
 readme = "readme.md"
 license-file = "license.md"
-include = ["**/*.rs", "src/flags/svg/*.svg"]
-
-[features]
-default = ["rayon", "common-formats"]
-rayon = ["image/rayon", "imageproc/rayon"]
-
-# file formats
-avif = ["image/avif"]
-bmp = ["image/bmp"]
-dds = ["image/dds"]
-exr = ["image/exr"]
-ff = ["image/ff"]
-gif = ["dep:gif", "image/gif"]
-hdr = ["image/hdr"]
-ico = ["image/ico"]
-jpeg = ["image/jpeg"]
-png = ["image/png"]
-pnm = ["image/pnm"]
-qoi = ["image/qoi"]
-tga = ["image/tga"]
-tiff = ["image/tiff"]
-webp = ["image/webp"]
-
-common-formats = [ "jpeg", "png", "webp"]
-all-formats = ["avif", "bmp", "dds", "exr", "ff", "hdr", "ico", "jpeg", "png", "pnm", "qoi", "tga", "tiff", "webp"]
-
-[lib]
-crate-type = ["cdylib", "rlib"]
-
-[dependencies]
-bon = { version = "3.8.2", default-features = false, features = ["std"] }
-gif = { version = "0.14.1", optional = true, default-features = false, features = ["std"] }
-image = { version = "0.25.9", default-features = false }
-imageproc = { version = "0.26.0", default-features = false }
-paste = { version = "1.0.15", default-features = false }
-resvg = { version = "0.46.0", default-features = false }
-
-[dev-dependencies]
-image = { version = "0.25.8", features = ["webp"] }
-
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-console_error_panic_hook = { version = "0.1.7", default-features = false }
-serde = { version = "1.0.228", default-features = false, features = ["derive", "std"] }
-tsify = { version = "0.5.6", default-features = false, features = ["wasm-bindgen", "js"] }
-wasm-bindgen = { version = "0.2.106", default-features = false, features = [
-    "std",
-] }
