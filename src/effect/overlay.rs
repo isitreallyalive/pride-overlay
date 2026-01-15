@@ -1,8 +1,5 @@
-use std::sync::Mutex;
-
 use image::{GenericImage, GenericImageView, Rgba};
 use rand::Rng;
-use rayon::prelude::*;
 
 use crate::effect::Effect;
 
@@ -22,12 +19,10 @@ impl Effect for Overlay {
             255,
         ]);
 
-        let image = Mutex::new(image);
-        (0..width).into_par_iter().for_each(|x| {
-            (0..height).for_each(|y| {
-                let mut image = image.lock().unwrap();
+        for x in 0..width {
+            for y in 0..height {
                 image.put_pixel(x, y, color);
-            });
-        });
+            }
+        }
     }
 }

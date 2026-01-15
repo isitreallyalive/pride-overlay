@@ -1,1 +1,3 @@
-/target
+target
+examples/*.svg
+perf.data

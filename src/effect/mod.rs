@@ -29,7 +29,7 @@ pub trait Effect: Sync {
                 #[cfg(not(feature = "rayon"))]
                 frames
                     .iter_mut()
-                    .for_each(|frame| self.process_frame(frame));
+                    .for_each(|frame| self.process_frame(*width, *height, frame));
             }
         }
     }
