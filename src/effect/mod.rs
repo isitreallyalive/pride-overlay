@@ -11,14 +11,19 @@ pub trait Effect: Sync {
         match image {
             Image::Static(img) => self.apply_effect(img),
             #[cfg(feature = "gif")]
-            Image::Animated(frames) => {
+            Image::Animated {
+                width,
+                height,
+                frames,
+                ..
+            } => {
                 #[cfg(feature = "rayon")]
                 {
                     use rayon::prelude::*;
 
                     frames
-                        .par_iter_mut()
-                        .for_each(|frame| self.process_frame(frame));
+                        .into_par_iter()
+                        .for_each(|frame| self.process_frame(*width, *height, frame));
                 }
 
                 #[cfg(not(feature = "rayon"))]
@@ -32,12 +37,13 @@ pub trait Effect: Sync {
     /// Process a single frame of an animated image.
     #[cfg(feature = "gif")]
     #[doc(hidden)]
-    fn process_frame(&self, frame: &mut image::Frame) {
+    fn process_frame(&self, width: u16, height: u16, frame: &mut Vec<u8>) {
         // directly manipulate the frame buffer to avoid cloning
-        let buf = frame.buffer_mut();
-        let mut img = DynamicImage::ImageRgba8(std::mem::take(buf));
+        let mut img = DynamicImage::ImageRgba8(
+            image::RgbaImage::from_raw(width as u32, height as u32, std::mem::take(frame)).unwrap(),
+        );
         self.apply_effect(&mut img);
-        *buf = img.to_rgba8();
+        *frame = img.to_rgba8().into_raw();
     }
 
     /// Apply the effect to a single static image.

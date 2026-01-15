@@ -13,4 +13,10 @@ pub mod prelude {
 pub enum PrideError {
     #[error(transparent)]
     Image(#[from] ::image::ImageError),
+    #[cfg(feature = "gif")]
+    #[error(transparent)]
+    GifDecode(#[from] gif::DecodingError),
+    #[cfg(feature = "gif")]
+    #[error(transparent)]
+    GifEncode(#[from] gif::EncodingError),
 }
