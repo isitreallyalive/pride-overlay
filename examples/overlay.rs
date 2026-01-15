@@ -1,19 +1,16 @@
-use std::path::PathBuf;
-
 use pride_overlay::prelude::*;
 
-const WEBP: &[u8] = include_bytes!("input.webp");
-const GIF: &[u8] = include_bytes!("input.gif");
+use crate::helpers::run;
 
-const OVERLAY: Overlay = Overlay;
+mod helpers;
+
+const NAME: &str = "overlay";
+const WEBP: &[u8] = include_bytes!("data/input.webp");
+const GIF: &[u8] = include_bytes!("data/input.gif");
 
 fn main() -> Result<(), PrideError> {
-    let mut gif = Image::read(GIF)?;
-    OVERLAY.apply(&mut gif);
-
-    let examples = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("examples");
-    let gif_out = gif.to_bytes(ImageFormat::Gif)?;
-    std::fs::write(examples.join("out.gif"), gif_out).unwrap();
+    run(NAME, WEBP, Overlay, ImageFormat::WebP)?;
+    run(NAME, GIF, Overlay, ImageFormat::Gif)?;
 
     Ok(())
 }

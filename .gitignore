@@ -1,3 +1,4 @@
 target
 examples/*.svg
 perf.data
+pkg

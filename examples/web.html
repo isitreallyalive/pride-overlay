@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>pride-overlay</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+
+  <body class="p-12">
+    <div class="grid grid-cols-2 *:flex *:flex-col *:items-center">
+      <div>
+        <h1 class="text-3xl font-bold mb-2">Before</h1>
+        <img src="/examples/data/input.gif" alt="Before" />
+      </div>
+      <div>
+        <h1 class="text-3xl font-bold mb-2">After</h1>
+        <img id="output" alt="Loading..." />
+      </div>
+    </div>
+
+    <script type="module">
+      import init, { Image, Effect } from "../pkg/pride_overlay.js";
+      await init();
+
+      const data = await fetch("/examples/data/input.gif")
+        .then((res) => res.arrayBuffer())
+        .then((buf) => new Uint8Array(buf));
+
+      const image = new Image(data);
+      image.apply(Effect.Overlay);
+      const url = URL.createObjectURL(
+        new Blob([image.write()], { type: "image/gif" })
+      );
+
+      const img = document.querySelector("img#output");
+      img.src = url;
+    </script>
+  </body>
+</html>

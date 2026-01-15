@@ -1,5 +1,7 @@
 pub mod effect;
 pub mod image;
+#[cfg(target_arch = "wasm32")]
+mod wasm;
 
 pub mod prelude {
     pub use crate::PrideError;

@@ -9,9 +9,9 @@ pub trait Effect: Sync {
     /// Apply the effect to the given [Image].
     fn apply(&self, image: &mut Image) {
         match image {
-            Image::Static(img) => self.apply_effect(img),
+            Image::Static { image, .. } => self.apply_effect(image),
             #[cfg(feature = "gif")]
-            Image::Animated {
+            Image::Gif {
                 width,
                 height,
                 frames,

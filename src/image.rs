@@ -1,12 +1,17 @@
 #[cfg(feature = "gif")]
 use gif::{Frame, Repeat};
-use image::{DynamicImage, ImageFormat};
+use image::{DynamicImage, GenericImageView, ImageFormat};
 use std::io::Cursor;
 
+use crate::PrideError;
+
 pub enum Image {
-    Static(DynamicImage),
+    Static {
+        image: DynamicImage,
+        format: ImageFormat,
+    },
     #[cfg(feature = "gif")]
-    Animated {
+    Gif {
         width: u16,
         height: u16,
         frames: Vec<Vec<u8>>,
@@ -56,7 +61,7 @@ impl Image {
                     delays.push(frame.delay);
                 }
 
-                Self::Animated {
+                Self::Gif {
                     width,
                     height,
                     frames,
@@ -66,22 +71,25 @@ impl Image {
             }
             _ => {
                 // just read everything else as a static image
-                Self::Static(image::load_from_memory_with_format(data, format)?)
+                Self::Static {
+                    image: image::load_from_memory_with_format(data, format)?,
+                    format,
+                }
             }
         };
 
         Ok(image)
     }
 
-    pub fn to_bytes(self, format: ImageFormat) -> Result<Vec<u8>, crate::PrideError> {
+    pub fn to_bytes(self) -> Result<Vec<u8>, crate::PrideError> {
         let mut buf = Cursor::new(Vec::new());
         match self {
-            Self::Static(img) => {
-                img.write_to(&mut buf, format)?;
+            Self::Static { image, format } => {
+                image.write_to(&mut buf, format)?;
                 Ok(buf.into_inner())
             }
             #[cfg(feature = "gif")]
-            Self::Animated {
+            Self::Gif {
                 width,
                 height,
                 frames,
@@ -104,8 +112,11 @@ impl Image {
     }
 }
 
-impl From<DynamicImage> for Image {
-    fn from(img: DynamicImage) -> Self {
-        Image::Static(img)
+impl TryFrom<DynamicImage> for Image {
+    type Error = PrideError;
+
+    fn try_from(image: DynamicImage) -> Result<Self, PrideError> {
+        let format = image::guess_format(&image.buffer_like())?;
+        Ok(Image::Static { image, format })
     }
 }
