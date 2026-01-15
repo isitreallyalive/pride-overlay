@@ -1,7 +1,8 @@
+use std::io::{Read, Seek, Write};
+
 #[cfg(feature = "gif")]
 use gif::{Frame, Repeat};
 use image::{DynamicImage, GenericImageView, ImageFormat};
-use std::io::Cursor;
 
 use crate::PrideError;
 
@@ -22,16 +23,21 @@ pub enum Image {
 
 impl Image {
     /// Read image data from a byte slice.
-    pub fn read(data: &[u8]) -> Result<Self, crate::PrideError> {
-        let format = image::guess_format(data)?;
+    pub fn read<R: Read>(data: R) -> Result<Self, crate::PrideError> {
+        let mut buf = Vec::new();
+        data.take(usize::MAX as u64).read_to_end(&mut buf)?;
+
+        let format = image::guess_format(&buf)?;
         let image = match format {
             #[cfg(feature = "gif")]
             ImageFormat::Gif => {
                 // decode gifs into frames
                 let mut decoder = {
+                    use std::io::Cursor;
+
                     let mut opts = gif::DecodeOptions::new();
                     opts.set_color_output(gif::ColorOutput::RGBA);
-                    opts.read_info(data)?
+                    opts.read_info(Cursor::new(&buf))?
                 };
                 let width = decoder.width();
                 let height = decoder.height();
@@ -72,7 +78,7 @@ impl Image {
             _ => {
                 // just read everything else as a static image
                 Self::Static {
-                    image: image::load_from_memory_with_format(data, format)?,
+                    image: image::load_from_memory_with_format(&buf, format)?,
                     format,
                 }
             }
@@ -81,12 +87,10 @@ impl Image {
         Ok(image)
     }
 
-    pub fn to_bytes(self) -> Result<Vec<u8>, crate::PrideError> {
-        let mut buf = Cursor::new(Vec::new());
+    pub fn write<W: Write + Seek>(self, buf: &mut W) -> Result<(), PrideError> {
         match self {
             Self::Static { image, format } => {
-                image.write_to(&mut buf, format)?;
-                Ok(buf.into_inner())
+                image.write_to(buf, format)?;
             }
             #[cfg(feature = "gif")]
             Self::Gif {
@@ -96,7 +100,7 @@ impl Image {
                 delays,
                 repeat,
             } => {
-                let mut encoder = gif::Encoder::new(&mut buf, width, height, &[])?;
+                let mut encoder = gif::Encoder::new(buf, width, height, &[])?;
                 encoder.set_repeat(repeat)?;
 
                 for (mut data, delay) in frames.into_iter().zip(delays) {
@@ -105,10 +109,10 @@ impl Image {
                     encoder.write_frame(&frame)?;
                 }
                 drop(encoder);
-
-                Ok(buf.into_inner())
             }
         }
+
+        Ok(())
     }
 }
 

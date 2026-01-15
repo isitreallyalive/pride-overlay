@@ -1,4 +1,4 @@
-use std::{env, path::PathBuf};
+use std::{env, io::Cursor, path::PathBuf};
 
 use pride_overlay::prelude::*;
 
@@ -15,12 +15,13 @@ pub fn run<E: Effect>(
     effect.apply(&mut image);
 
     // write output
-    let out = image.to_bytes()?;
+    let mut buf = Cursor::new(Vec::new());
+    image.write(&mut buf)?;
     let mut out_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("examples")
         .join(name);
     out_path.set_extension(format.extensions_str()[0]);
-    std::fs::write(&out_path, out).expect("couldn't write output");
+    std::fs::write(&out_path, buf.into_inner()).expect("couldn't write output");
 
     println!(
         "written {}",

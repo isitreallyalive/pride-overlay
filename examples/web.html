@@ -18,19 +18,22 @@
     </div>
 
     <script type="module">
+      // initialise the module
       import init, { Image, Effect } from "../pkg/pride_overlay.js";
       await init();
 
+      // fetch the input data
       const data = await fetch("/examples/data/input.gif")
         .then((res) => res.arrayBuffer())
         .then((buf) => new Uint8Array(buf));
 
+      // apply the effect
       const image = new Image(data);
       image.apply(Effect.Overlay);
-      const url = URL.createObjectURL(
-        new Blob([image.write()], { type: "image/gif" })
-      );
+      const out = image.write();
 
+      // display the result
+      const url = URL.createObjectURL(new Blob([out], { type: "image/gif" }));
       const img = document.querySelector("img#output");
       img.src = url;
     </script>

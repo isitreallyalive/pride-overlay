@@ -21,4 +21,6 @@ pub enum PrideError {
     #[cfg(feature = "gif")]
     #[error(transparent)]
     GifEncode(#[from] gif::EncodingError),
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
 }

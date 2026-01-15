@@ -1,3 +1,5 @@
+use std::io::Cursor;
+
 use wasm_bindgen::prelude::*;
 
 use crate::{effect::Effect, image::Image as InnerImage, prelude::Overlay};
@@ -33,8 +35,10 @@ impl Image {
     }
 
     pub fn write(self) -> Result<Vec<u8>, JsValue> {
+        let mut buf = Cursor::new(Vec::new());
         self.0
-            .to_bytes()
-            .map_err(|e| JsValue::from_str(&e.to_string()))
+            .write(&mut buf)
+            .map_err(|e| JsValue::from_str(&e.to_string()))?;
+        Ok(buf.into_inner())
     }
 }
