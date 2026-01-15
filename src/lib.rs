@@ -1,4 +1,5 @@
 pub mod effect;
+pub mod flags;
 pub mod image;
 #[cfg(target_arch = "wasm32")]
 mod wasm;

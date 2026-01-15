@@ -19,7 +19,7 @@
 
     <script type="module">
       // initialise the module
-      import init, { Image, Effect } from "../pkg/pride_overlay.js";
+      import init, { Image, Flag, Effect } from "../pkg/pride_overlay.js";
       await init();
 
       // fetch the input data
@@ -29,7 +29,7 @@
 
       // apply the effect
       const image = new Image(data);
-      image.apply(Effect.Overlay);
+      image.apply(Flag.Rainbow, Effect.Overlay);
       const out = image.write();
 
       // display the result

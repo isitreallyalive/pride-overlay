@@ -1,27 +1,28 @@
-use image::{GenericImage, GenericImageView, Rgba};
-use rand::Rng;
+use image::{GenericImageView, Pixel};
+use imageproc::{drawing::draw_filled_rect_mut, rect::Rect};
 
-use crate::effect::Effect;
+use crate::{effect::Effect, flags::Flag};
 
-pub struct Overlay;
+#[derive(bon::Builder)]
+#[builder(const)]
+pub struct Overlay<'a> {
+    #[builder(start_fn)]
+    flag: Flag<'a>,
+}
 
-impl Effect for Overlay {
+impl Effect for Overlay<'_> {
     fn apply_effect(&self, image: &mut image::DynamicImage) {
-        // todo: overlay a pride flag
-
-        // for now, we just make it a random colour
         let (width, height) = image.dimensions();
-        let mut rng = rand::rng();
-        let color = Rgba([
-            rng.random_range(0..=255),
-            rng.random_range(0..=255),
-            rng.random_range(0..=255),
-            255,
-        ]);
+        let count = self.flag.colours.len() as u32;
 
-        for x in 0..width {
-            for y in 0..height {
-                image.put_pixel(x, y, color);
+        for (colour, i) in self.flag.colours.iter().zip(0..count) {
+            // calculate the start and end y-coordinates for this stripe
+            let start = (i * height) / count;
+            let end = ((i + 1) * height) / count;
+
+            if end > start {
+                let rect = Rect::at(0, start as i32).of_size(width, end - start);
+                draw_filled_rect_mut(image, rect, colour.to_rgba());
             }
         }
     }

@@ -1,4 +1,4 @@
-use pride_overlay::prelude::*;
+use pride_overlay::{flags::RAINBOW, prelude::*};
 
 use crate::helpers::run;
 
@@ -9,8 +9,18 @@ const WEBP: &[u8] = include_bytes!("data/input.webp");
 const GIF: &[u8] = include_bytes!("data/input.gif");
 
 fn main() -> Result<(), PrideError> {
-    run(NAME, WEBP, Overlay, ImageFormat::WebP)?;
-    run(NAME, GIF, Overlay, ImageFormat::Gif)?;
+    run(
+        NAME,
+        WEBP,
+        Overlay::builder(RAINBOW).build(),
+        ImageFormat::WebP,
+    )?;
+    run(
+        NAME,
+        GIF,
+        Overlay::builder(RAINBOW).build(),
+        ImageFormat::Gif,
+    )?;
 
     Ok(())
 }

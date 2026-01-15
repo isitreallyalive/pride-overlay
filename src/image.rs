@@ -46,7 +46,7 @@ impl Image {
 
                 while let Ok(Some(frame)) = decoder.read_next_frame() {
                     // convert frame to full canvas size
-                    let mut canvas = vec![0u8; (width as usize) * (height as usize) * 4];
+                    let mut canvas = vec![0; (width as usize) * (height as usize) * 4];
 
                     // copy frame data to the correct position in the canvas
                     for y in 0..frame.height {
