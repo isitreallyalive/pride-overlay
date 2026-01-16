@@ -1,10 +1,12 @@
+// todo: config controls
+
 use std::borrow::Cow;
 use std::io::{Cursor, Seek, Write};
 
-use gif::{ColorOutput, Encoder, Frame, Repeat};
+use gif::{Decoder, Encoder, Frame, Repeat};
 use image::{DynamicImage, RgbaImage};
 
-use crate::{PrideError, image::Format};
+use crate::{Result, image::Format};
 
 /// A GIF image
 pub struct Gif {
@@ -17,19 +19,15 @@ pub struct Gif {
 /// A GIF frame with owned data
 struct OwnedFrame {
     image: Cow<'static, [u8]>,
-    width: u16,  
-    height: u16, 
-    delay: u16, 
+    width: u16,
+    height: u16,
+    delay: u16,
 }
 
 impl Format for Gif {
-    fn read(data: &[u8]) -> Result<Self, PrideError> {
+    fn read(data: &[u8]) -> Result<Self> {
         // decode the gif
-        let decoder = {
-            let mut opts = gif::DecodeOptions::new();
-            opts.set_color_output(ColorOutput::RGBA);
-            opts.read_info(Cursor::new(data))?
-        };
+        let decoder = Decoder::new(Cursor::new(data))?;
         let (width, height) = (decoder.width(), decoder.height());
         let repeat = decoder.repeat();
 
@@ -53,7 +51,7 @@ impl Format for Gif {
         })
     }
 
-    fn write<W: Write + Seek>(mut self, buf: &mut W) -> Result<(), PrideError> {
+    fn write<W: Write + Seek>(mut self, buf: &mut W) -> Result<()> {
         // initialise encoder
         let mut encoder = Encoder::new(buf, self.width, self.height, &[])?;
         encoder.set_repeat(self.repeat)?;
@@ -70,9 +68,9 @@ impl Format for Gif {
         Ok(())
     }
 
-    fn apply<A>(&mut self, apply: A) -> Result<(), PrideError>
+    fn apply<A>(&mut self, apply: A) -> Result<()>
     where
-        A: Fn(&mut DynamicImage) -> Result<(), PrideError>,
+        A: Fn(&mut DynamicImage) -> Result<()>,
     {
         for f in &mut self.frames {
             // gifs only support RGBA images

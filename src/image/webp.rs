@@ -1,4 +1,5 @@
 // todo: don't unwrap
+// todo: config controls
 
 use std::borrow::Cow;
 use std::io;
@@ -6,14 +7,16 @@ use std::io;
 use image::DynamicImage;
 use webp::{AnimDecoder, AnimEncoder, AnimFrame, WebPConfig};
 
-use crate::{PrideError, image::Format};
+use crate::{Result, image::Format};
 
+/// A WebP image
 pub struct WebP {
     frames: Vec<OwnedFrame>,
     width: u32,
     height: u32,
 }
 
+/// A WebP frame with owned data
 struct OwnedFrame {
     image: Cow<'static, [u8]>,
     width: u32,
@@ -22,7 +25,7 @@ struct OwnedFrame {
 }
 
 impl Format for WebP {
-    fn read(data: &[u8]) -> Result<Self, crate::PrideError> {
+    fn read(data: &[u8]) -> Result<Self> {
         // decode the animated webp
         let decoder = AnimDecoder::new(data).decode().unwrap();
         let raw_frames = decoder.get_frames(0..decoder.len()).unwrap();
@@ -53,7 +56,7 @@ impl Format for WebP {
         })
     }
 
-    fn write<W: io::Write + io::Seek>(self, buf: &mut W) -> Result<(), crate::PrideError> {
+    fn write<W: io::Write + io::Seek>(self, buf: &mut W) -> Result<()> {
         // intialise encoder
         let conf = WebPConfig::new().unwrap();
         let mut encoder = AnimEncoder::new(self.width, self.height, &conf);
@@ -70,9 +73,9 @@ impl Format for WebP {
         Ok(())
     }
 
-    fn apply<A>(&mut self, apply: A) -> Result<(), crate::PrideError>
+    fn apply<A>(&mut self, apply: A) -> Result<()>
     where
-        A: Fn(&mut DynamicImage) -> Result<(), PrideError>,
+        A: Fn(&mut DynamicImage) -> Result<()>,
     {
         for f in &mut self.frames {
             let frame = AnimFrame::from_rgba(&f.image, f.width, f.height, f.timestamp);
@@ -80,6 +83,7 @@ impl Format for WebP {
             apply(&mut img)?;
             f.image = Cow::Owned(img.to_rgba8().into_raw());
         }
+
         Ok(())
     }
 }

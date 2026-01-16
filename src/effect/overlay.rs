@@ -1,7 +1,7 @@
 use image::{GenericImageView, Pixel, RgbaImage, imageops::overlay};
 use imageproc::{drawing::draw_filled_rect_mut, rect::Rect};
 
-use crate::{PrideError, effect::Effect, flags::Flag};
+use crate::{Result, effect::Effect, flags::Flag};
 
 #[derive(bon::Builder)]
 #[builder(const)]
@@ -13,7 +13,7 @@ pub struct Overlay<'a> {
 }
 
 impl Effect for Overlay<'_> {
-    fn apply_effect(&self, image: &mut image::DynamicImage) -> Result<(), PrideError> {
+    fn apply_effect(&self, image: &mut image::DynamicImage) -> Result<()> {
         if self.opacity == 0. {
             // no-op
             return Ok(());

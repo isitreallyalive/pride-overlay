@@ -1,14 +1,10 @@
 use std::{env, io::Cursor, path::PathBuf};
 
-use pride_overlay::prelude::*;
+use pride_overlay::{Result, prelude::*};
 
-pub fn run<E: Effect>(
-    name: &str,
-    data: &[u8],
-    effect: E,
-    format: ImageFormat,
-) -> Result<(), PrideError> {
-    println!("applying effect to {:?}", name);
+pub fn run<E: Effect>(name: &str, data: &[u8], effect: E, format: ImageFormat) -> Result<()> {
+    let ext = format.extensions_str()[0];
+    println!("applying effect to {name}.{ext}");
 
     // apply effect
     let mut image = Image::read(data)?;
@@ -20,7 +16,7 @@ pub fn run<E: Effect>(
     let mut out_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("examples")
         .join(name);
-    out_path.set_extension(format.extensions_str()[0]);
+    out_path.set_extension(ext);
     std::fs::write(&out_path, buf.into_inner()).expect("couldn't write output");
 
     println!(

@@ -1,5 +1,5 @@
 @clean:
-    rm -rf examples/*.gif examples/*.webp
+    rm -rf examples/*.gif examples/*.webp examples/*.png
 
 @doc:
     cargo doc
