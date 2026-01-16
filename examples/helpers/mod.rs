@@ -8,11 +8,11 @@ pub fn run<E: Effect>(
     effect: E,
     format: ImageFormat,
 ) -> Result<(), PrideError> {
-    println!("applying effect to {:?}", format);
+    println!("applying effect to {:?}", name);
 
     // apply effect
     let mut image = Image::read(data)?;
-    effect.apply(&mut image);
+    effect.apply(&mut image)?;
 
     // write output
     let mut buf = Cursor::new(Vec::new());

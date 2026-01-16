@@ -2,7 +2,7 @@ use std::io::{Seek, Write};
 
 use image::{DynamicImage, ImageFormat};
 
-use crate::PrideError;
+use crate::{PrideError, image::other::Other};
 
 #[cfg(feature = "gif")]
 mod gif;
@@ -15,7 +15,9 @@ pub trait Format {
     where
         Self: Sized;
     fn write<W: Write + Seek>(self, buf: &mut W) -> Result<(), PrideError>;
-    fn apply<A: Fn(&mut DynamicImage)>(&mut self, apply: A);
+    fn apply<A>(&mut self, apply: A) -> Result<(), PrideError>
+    where
+        A: Fn(&mut DynamicImage) -> Result<(), PrideError>;
 }
 
 pub enum Image {
@@ -23,7 +25,7 @@ pub enum Image {
     Gif(gif::Gif),
     #[cfg(feature = "webp")]
     Webp(webp::WebP),
-    Other(other::Other),
+    Other(Other),
 }
 
 impl Image {
@@ -36,7 +38,7 @@ impl Image {
             ImageFormat::Gif => gif::Gif::read(data).map(Self::Gif),
             #[cfg(feature = "webp")]
             ImageFormat::WebP => webp::WebP::read(data).map(Self::Webp),
-            _ => other::Other::read(data).map(Self::Other),
+            _ => Other::read(data).map(Self::Other),
         }
     }
 
@@ -55,6 +57,6 @@ impl TryFrom<DynamicImage> for Image {
     type Error = PrideError;
 
     fn try_from(image: DynamicImage) -> Result<Self, PrideError> {
-        Ok(Self::Other(other::Other::try_from(image)?))
+        Ok(Self::Other(Other::try_from(image)?))
     }
 }
