@@ -1,49 +1,18 @@
 use image::DynamicImage;
 
-use crate::image::Image;
+use crate::image::{Format, Image};
 
 pub mod overlay;
 
 /// An effect that can be applied to an image.
-pub trait Effect: Sync {
+pub trait Effect {
     /// Apply the effect to the given [Image].
     fn apply(&self, image: &mut Image) {
         match image {
-            Image::Static { image, .. } => self.apply_effect(image),
             #[cfg(feature = "gif")]
-            Image::Gif {
-                width,
-                height,
-                frames,
-                ..
-            } => {
-                #[cfg(feature = "rayon")]
-                {
-                    use rayon::prelude::*;
-
-                    frames
-                        .into_par_iter()
-                        .for_each(|frame| self.process_frame(*width, *height, frame));
-                }
-
-                #[cfg(not(feature = "rayon"))]
-                frames
-                    .iter_mut()
-                    .for_each(|frame| self.process_frame(*width, *height, frame));
-            }
+            Image::Gif(gif) => gif.apply(|f| self.apply_effect(f)),
+            Image::Other(other) => other.apply(|f| self.apply_effect(f)),
         }
-    }
-
-    /// Process a single frame of an animated image.
-    #[cfg(feature = "gif")]
-    #[doc(hidden)]
-    fn process_frame(&self, width: u16, height: u16, frame: &mut Vec<u8>) {
-        // directly manipulate the frame buffer to avoid cloning
-        let mut img = DynamicImage::ImageRgba8(
-            image::RgbaImage::from_raw(width as u32, height as u32, std::mem::take(frame)).unwrap(),
-        );
-        self.apply_effect(&mut img);
-        *frame = img.to_rgba8().into_raw();
     }
 
     /// Apply the effect to a single static image.
