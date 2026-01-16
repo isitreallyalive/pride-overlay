@@ -6,7 +6,7 @@ use crate::image::Format;
 
 pub struct Other {
     data: DynamicImage,
-    format: ImageFormat
+    format: ImageFormat,
 }
 
 impl Format for Other {
@@ -33,7 +33,7 @@ impl TryFrom<DynamicImage> for Other {
         let format = image::guess_format(&image.buffer_like())?;
         Ok(Self {
             data: image,
-            format
+            format,
         })
     }
 }

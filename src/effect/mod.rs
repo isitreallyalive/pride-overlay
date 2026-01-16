@@ -11,6 +11,8 @@ pub trait Effect {
         match image {
             #[cfg(feature = "gif")]
             Image::Gif(gif) => gif.apply(|f| self.apply_effect(f)),
+            #[cfg(feature = "webp")]
+            Image::Webp(webp) => webp.apply(|f| self.apply_effect(f)),
             Image::Other(other) => other.apply(|f| self.apply_effect(f)),
         }
     }

@@ -1,25 +1,21 @@
 use std::io::{Cursor, Seek, Write};
 
-use gif::{ColorOutput, Encoder, Repeat};
+use gif::{ColorOutput, Encoder, Frame, Repeat};
 use image::{DynamicImage, RgbaImage};
 
 use crate::{PrideError, image::Format};
 
-// todo: only keep necessary data
+/// A GIF image
 pub struct Gif {
+    frames: Vec<OwnedFrame>,
     width: u16,
     height: u16,
     repeat: Repeat,
-    frames: Vec<GifFrame>,
-}
-
-struct GifFrame {
-    data: Vec<u8>,
-    delay: u16,
 }
 
 impl Format for Gif {
     fn read(data: &[u8]) -> Result<Self, PrideError> {
+        // decode the gif
         let decoder = {
             let mut opts = gif::DecodeOptions::new();
             opts.set_color_output(ColorOutput::RGBA);
@@ -27,32 +23,14 @@ impl Format for Gif {
         };
         let (width, height) = (decoder.width(), decoder.height());
         let repeat = decoder.repeat();
+
+        // collect frames
         let frames = decoder
             .into_iter()
             .filter_map(|f| f.ok())
-            .map(|f| {
-                let mut canvas = vec![0; (width as usize) * (height as usize) * 4];
-
-                // copy frame data to the correct position in the canvas
-                for y in 0..f.height {
-                    for x in 0..f.width {
-                        let frame_idx = ((y as usize) * (f.width as usize) + (x as usize)) * 4;
-                        let canvas_x = f.left + x;
-                        let canvas_y = f.top + y;
-                        let canvas_idx =
-                            ((canvas_y as usize) * (width as usize) + (canvas_x as usize)) * 4;
-
-                        canvas[canvas_idx..canvas_idx + 4]
-                            .copy_from_slice(&f.buffer[frame_idx..frame_idx + 4]);
-                    }
-                }
-
-                GifFrame {
-                    data: canvas,
-                    delay: f.delay,
-                }
-            })
+            .map(OwnedFrame::from)
             .collect::<Vec<_>>();
+
         Ok(Self {
             width,
             height,
@@ -61,19 +39,17 @@ impl Format for Gif {
         })
     }
 
-    fn write<W: Write + Seek>(mut self, buf: &mut W) -> Result<(), PrideError> {
+    fn write<W: Write + Seek>(self, buf: &mut W) -> Result<(), PrideError> {
+        // initialise encoder
         let mut encoder = Encoder::new(buf, self.width, self.height, &[])?;
         encoder.set_repeat(self.repeat)?;
 
-        let frames = self
+        // write processed frames
+        for frame in self
             .frames
-            .iter_mut()
-            .map(|f| {
-                let mut frame = gif::Frame::from_rgba_speed(self.width, self.height, &mut f.data, 10);
-                frame.delay = f.delay;
-                frame
-            });
-        for frame in frames {
+            .into_iter()
+            .filter_map(|f| Frame::try_from(f).ok())
+        {
             encoder.write_frame(&frame)?;
         }
 
@@ -81,12 +57,13 @@ impl Format for Gif {
     }
 
     fn apply<A: Fn(&mut DynamicImage)>(&mut self, apply: A) {
-        for frame in &mut self.frames {
+        for f in &mut self.frames {
+            // convert to Rgba8 dynamic image
             let mut img = {
                 let Some(rgba) = RgbaImage::from_raw(
-                    self.width as u32,
-                    self.height as u32,
-                    std::mem::take(&mut frame.data),
+                    f.width as u32,
+                    f.height as u32,
+                    std::mem::take(&mut f.image),
                 ) else {
                     continue;
                 };
@@ -94,7 +71,36 @@ impl Format for Gif {
             };
 
             apply(&mut img);
-            frame.data = img.to_rgba8().into_raw();
+            f.image = img.to_rgba8().into_raw();
         }
+    }
+}
+
+/// A GIF frame with owned data
+struct OwnedFrame {
+    image: Vec<u8>,
+    width: u16,
+    height: u16,
+    delay: u16,
+}
+
+impl From<Frame<'_>> for OwnedFrame {
+    fn from(f: Frame<'_>) -> Self {
+        Self {
+            image: f.buffer.to_vec(),
+            width: f.width,
+            height: f.height,
+            delay: f.delay,
+        }
+    }
+}
+
+impl TryFrom<OwnedFrame> for Frame<'_> {
+    type Error = PrideError;
+
+    fn try_from(mut f: OwnedFrame) -> Result<Self, PrideError> {
+        let mut frame = Frame::from_rgba_speed(f.width, f.height, &mut f.image, 10);
+        frame.delay = f.delay;
+        Ok(frame)
     }
 }

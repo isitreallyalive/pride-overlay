@@ -7,10 +7,13 @@ use crate::PrideError;
 #[cfg(feature = "gif")]
 mod gif;
 mod other;
+#[cfg(feature = "webp")]
+mod webp;
 
-#[cfg(any(feature = "gif"))]
-pub trait Format: Sized {
-    fn read(data: &[u8]) -> Result<Self, PrideError>;
+pub trait Format {
+    fn read(data: &[u8]) -> Result<Self, PrideError>
+    where
+        Self: Sized;
     fn write<W: Write + Seek>(self, buf: &mut W) -> Result<(), PrideError>;
     fn apply<A: Fn(&mut DynamicImage)>(&mut self, apply: A);
 }
@@ -18,7 +21,9 @@ pub trait Format: Sized {
 pub enum Image {
     #[cfg(feature = "gif")]
     Gif(gif::Gif),
-    Other(other::Other)
+    #[cfg(feature = "webp")]
+    Webp(webp::WebP),
+    Other(other::Other),
 }
 
 impl Image {
@@ -29,7 +34,9 @@ impl Image {
         match format {
             #[cfg(feature = "gif")]
             ImageFormat::Gif => gif::Gif::read(data).map(Self::Gif),
-            _ => other::Other::read(data).map(Self::Other)
+            #[cfg(feature = "webp")]
+            ImageFormat::WebP => webp::WebP::read(data).map(Self::Webp),
+            _ => other::Other::read(data).map(Self::Other),
         }
     }
 
@@ -37,6 +44,8 @@ impl Image {
         match self {
             #[cfg(feature = "gif")]
             Self::Gif(gif) => gif.write(buf),
+            #[cfg(feature = "webp")]
+            Self::Webp(webp) => webp.write(buf),
             Self::Other(other) => other.write(buf),
         }
     }
