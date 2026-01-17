@@ -1,3 +1,5 @@
+// todo: error handling
+
 use std::io::Cursor;
 
 use wasm_bindgen::prelude::*;
@@ -39,12 +41,13 @@ impl Image {
             .map_err(|e| JsValue::from_str(&e.to_string()))
     }
 
-    pub fn apply(&mut self, flag: WasmFlag, effect: WasmEffect) {
+    pub fn apply(&mut self, flag: WasmFlag, effect: WasmEffect) -> Result<(), JsValue> {
         // apply the effect
         let effect: Box<dyn Effect> = Box::new(match effect {
             WasmEffect::Overlay => Overlay::builder(flag.into()).build(),
         });
-        effect.apply(&mut self.0);
+        effect.apply(&mut self.0).map_err(|e| JsValue::from_str(&e.to_string()))?;
+        Ok(())
     }
 
     pub fn write(self) -> Result<Vec<u8>, JsValue> {

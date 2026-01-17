@@ -1,0 +1,7 @@
+{
+    "include": ["squoosh/*.d.ts"],
+    "compilerOptions": {
+        "module": "es2020",
+        "moduleResolution": "bundler"
+    }
+}

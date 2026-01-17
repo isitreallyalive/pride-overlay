@@ -16,8 +16,10 @@
 @wasm-clean:
     rm -rf pkg
 
-@wasm-build: wasm-clean
-    wasm-pack build --target web --no-default-features --features all-formats
+wasm-build profile="dev" *args: wasm-clean
+    cd wasm && bun esbuild.ts
+    wasm-pack build --target web --no-default-features --features default-formats {{args}}
 
-@wasm: wasm-build
+@wasm:
+    just wasm-build
     miniserve --index examples/web.html
