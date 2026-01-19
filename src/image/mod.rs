@@ -1,6 +1,7 @@
 use std::io::{Seek, Write};
 
 use image::{DynamicImage, ImageFormat};
+use maybe_async::maybe_async;
 
 use crate::{Result, image::other::Other};
 
@@ -12,8 +13,9 @@ mod png;
 #[cfg(feature = "webp")]
 mod webp;
 
+#[maybe_async(?Send)]
 pub trait Format {
-    fn read(data: &[u8]) -> Result<Self>
+    async fn read(data: &[u8]) -> Result<Self>
     where
         Self: Sized;
 
@@ -34,19 +36,20 @@ pub enum Image {
     Other(Other),
 }
 
+#[maybe_async]
 impl Image {
     /// Read image data from a byte slice.
-    pub fn read(data: &[u8]) -> Result<Self> {
+    pub async fn read(data: &[u8]) -> Result<Self> {
         let format = image::guess_format(data)?;
 
         match format {
             #[cfg(feature = "gif")]
-            ImageFormat::Gif => gif::Gif::read(data).map(Self::Gif),
+            ImageFormat::Gif => gif::Gif::read(data).await.map(Self::Gif),
             #[cfg(feature = "webp")]
-            ImageFormat::WebP => webp::WebP::read(data).map(Self::Webp),
+            ImageFormat::WebP => webp::WebP::read(data).await.map(Self::Webp),
             #[cfg(feature = "png")]
-            ImageFormat::Png => png::Png::read(data).map(Self::Png),
-            _ => Other::read(data).map(Self::Other),
+            ImageFormat::Png => png::Png::read(data).await.map(Self::Png),
+            _ => Other::read(data).await.map(Self::Other),
         }
     }
 

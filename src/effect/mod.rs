@@ -13,7 +13,7 @@ pub trait Effect {
     fn apply(&self, image: &mut Image) -> Result<()> {
         match image {
             #[cfg(feature = "gif")]
-            Image::Gif(gif) => gif.apply(|f| self.apply_effect(f)),
+            Image::Gif(gif) => gif.apply(|f: &mut DynamicImage| self.apply_effect(f)),
             #[cfg(feature = "webp")]
             Image::Webp(webp) => webp.apply(|f| self.apply_effect(f)),
             #[cfg(feature = "png")]

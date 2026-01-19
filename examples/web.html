@@ -9,7 +9,7 @@
     <div class="grid grid-cols-2 *:flex *:flex-col *:items-center">
       <div>
         <h1 class="text-3xl font-bold mb-2">Before</h1>
-        <img src="/examples/data/anim.webp" alt="Before" />
+        <img src="/examples/data/image.webp" alt="Before" />
       </div>
       <div>
         <h1 class="text-3xl font-bold mb-2">After</h1>
@@ -23,14 +23,15 @@
       await init();
 
       // fetch the input data
-      const data = await fetch("/examples/data/anim.webp")
+      const data = await fetch("/examples/data/image.webp")
         .then((res) => res.arrayBuffer())
         .then((buf) => new Uint8Array(buf));
 
       // apply the effect
-      const image = new Image(data);
+      const image = await Image.read(data);
       image.apply(Flag.Rainbow, Effect.Overlay);
       const out = image.write();
+      console.log(out);
 
       // display the result
       const url = URL.createObjectURL(new Blob([out], { type: "image/webp" }));

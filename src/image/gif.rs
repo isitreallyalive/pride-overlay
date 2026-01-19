@@ -24,8 +24,9 @@ struct OwnedFrame {
     delay: u16,
 }
 
+#[maybe_async::maybe_async(?Send)]
 impl Format for Gif {
-    fn read(data: &[u8]) -> Result<Self> {
+    async fn read(data: &[u8]) -> Result<Self> {
         // decode the gif
         let decoder = Decoder::new(Cursor::new(data))?;
         let (width, height) = (decoder.width(), decoder.height());

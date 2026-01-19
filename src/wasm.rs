@@ -34,9 +34,9 @@ pub struct Image(InnerImage);
 
 #[wasm_bindgen]
 impl Image {
-    #[wasm_bindgen(constructor)]
-    pub fn new(data: &[u8]) -> Result<Self, JsValue> {
+    pub async fn read(data: &[u8]) -> Result<Self, JsValue> {
         InnerImage::read(data)
+            .await
             .map(Self)
             .map_err(|e| JsValue::from_str(&e.to_string()))
     }
@@ -46,7 +46,9 @@ impl Image {
         let effect: Box<dyn Effect> = Box::new(match effect {
             WasmEffect::Overlay => Overlay::builder(flag.into()).build(),
         });
-        effect.apply(&mut self.0).map_err(|e| JsValue::from_str(&e.to_string()))?;
+        effect
+            .apply(&mut self.0)
+            .map_err(|e| JsValue::from_str(&e.to_string()))?;
         Ok(())
     }
 

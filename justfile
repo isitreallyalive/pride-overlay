@@ -19,6 +19,7 @@
 wasm-build profile="dev" *args: wasm-clean
     cd wasm && bun esbuild.ts
     wasm-pack build --target web --no-default-features --features default-formats {{args}}
+    cp wasm/squoosh/*.wasm pkg
 
 @wasm:
     just wasm-build

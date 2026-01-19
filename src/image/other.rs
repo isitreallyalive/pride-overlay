@@ -10,8 +10,9 @@ pub struct Other {
     format: ImageFormat,
 }
 
+#[maybe_async::maybe_async(?Send)]
 impl Format for Other {
-    fn read(data: &[u8]) -> Result<Self> {
+    async fn read(data: &[u8]) -> Result<Self> {
         let format = image::guess_format(data)?;
         let img = image::load_from_memory_with_format(data, format)?;
         Ok(Self { image: img, format })

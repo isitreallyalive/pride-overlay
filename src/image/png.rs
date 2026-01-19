@@ -20,8 +20,9 @@ struct Frame {
     delay: Option<(u16, u16)>,
 }
 
+#[maybe_async::maybe_async(?Send)]
 impl Format for Png {
-    fn read(data: &[u8]) -> Result<Self> {
+    async fn read(data: &[u8]) -> Result<Self> {
         // decode png data
         let mut reader = Decoder::new(Cursor::new(data)).read_info()?;
         let Info {
