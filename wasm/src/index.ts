@@ -1,20 +1,15 @@
-import initDecode, { WebPModule as DecodeModule } from "../squoosh/webp_dec";
+import init from "../dist/webp";
 
-let decodeModule: Promise<DecodeModule> | null = null;
-
-async function getDecode(): Promise<DecodeModule> {
-    if (!decodeModule) {
-        decodeModule = initDecode({
-            locateFile: (path: string) => {
-                return `${new URL("../../../../", import.meta.url)}${path}`;
-            }
-        });
+const webp = await init({
+    locateFile: (path: string) => {
+        return `${new URL("../../../../", import.meta.url)}${path}`;
     }
-    return decodeModule!;
+});
+
+export function decode(data: Uint8Array): ImageData | null {
+    return webp.decode(data);
 }
 
-export async function decode(data: Uint8Array): Promise<ImageData | null> {
-    const decoder = await getDecode();
-    const decoded = decoder.decode(data.buffer as ArrayBuffer);
-    return decoded;
+export function encode(data: Uint8Array, width: number, height: number): Uint8Array | null {
+    return webp.encode(data, width, height);
 }
